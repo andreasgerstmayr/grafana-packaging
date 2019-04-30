@@ -9,7 +9,7 @@
 end}
 
 Name:             grafana
-Version:          6.1.4
+Version:          6.1.6
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -68,6 +68,14 @@ BuildRequires: golang(github.com/go-macaron/gzip)
 BuildRequires: golang(github.com/go-macaron/inject)
 BuildRequires: golang(github.com/go-macaron/session)
 BuildRequires: golang(google.golang.org/genproto/googleapis/rpc/status)
+BuildRequires: golang(github.com/gobwas/glob)
+BuildRequires: golang(github.com/gobwas/glob/compiler)
+BuildRequires: golang(github.com/gobwas/glob/match)
+BuildRequires: golang(github.com/gobwas/glob/syntax)
+BuildRequires: golang(github.com/gobwas/glob/syntax/ast)
+BuildRequires: golang(github.com/gobwas/glob/syntax/lexer)
+BuildRequires: golang(github.com/gobwas/glob/util/runes)
+BuildRequires: golang(github.com/gobwas/glob/util/strings)
 BuildRequires: golang(github.com/gopherjs/gopherjs/js)
 BuildRequires: golang(github.com/gorilla/websocket)
 BuildRequires: golang(github.com/gosimple/slug)
@@ -418,6 +426,10 @@ go test ./pkg/...
 
 
 %changelog
+* Tue Apr 30 2019 Mark Goodwin <mgoodwin@redhat.com> 6.1.6-1
+- update to latest upstream stable release 6.1.6, see CHANGELOG
+- includes jQuery 3.4.0 security update
+
 * Wed Apr 24 2019 Mark Goodwin <mgoodwin@redhat.com> 6.1.4-1
 - update to latest upstream stable release 6.1.4, see CHANGELOG
 - use gobuild and gochecks macros, eliminate arch symlinks
