@@ -1,15 +1,15 @@
 diff --git a/pkg/cmd/grafana-server/server.go b/pkg/cmd/grafana-server/server.go
-index c10212329..a29d14c85 100644
+index 2ac326ed3..20943918c 100644
 --- a/pkg/cmd/grafana-server/server.go
 +++ b/pkg/cmd/grafana-server/server.go
-@@ -31,7 +31,6 @@ import (
+@@ -21,7 +21,6 @@ import (
  	_ "github.com/grafana/grafana/pkg/infra/metrics"
  	_ "github.com/grafana/grafana/pkg/infra/remotecache"
  	_ "github.com/grafana/grafana/pkg/infra/serverlock"
 -	_ "github.com/grafana/grafana/pkg/infra/tracing"
  	_ "github.com/grafana/grafana/pkg/infra/usagestats"
- 	_ "github.com/grafana/grafana/pkg/plugins"
- 	_ "github.com/grafana/grafana/pkg/services/alerting"
+ 	"github.com/grafana/grafana/pkg/log"
+ 	"github.com/grafana/grafana/pkg/login"
 diff --git a/pkg/infra/tracing/tracing.go b/pkg/infra/tracing/tracing.go
 deleted file mode 100644
 index fd7258b7a..000000000
