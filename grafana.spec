@@ -17,7 +17,7 @@ end}
 
 Name:             grafana
 Version:          6.2.2
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -604,6 +604,9 @@ go test ./pkg/...
 
 
 %changelog
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 6.2.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
 * Fri Jun 07 2019 Mark Goodwin <mgoodwin@redhat.com> 6.2.2-1
 - split out some datasource plugins to sub-packages
 - update to latest upstream community sources, see CHANGELOG
