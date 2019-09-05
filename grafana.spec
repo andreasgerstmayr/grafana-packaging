@@ -8,16 +8,21 @@
   end
 end}
 
-# Unbundle grafana vendor sources and instead use BuildRequires
+# Unbundle Grafana vendor sources and instead use BuildRequires
 # only on platforms that have enough golang devel support.
 %if 0%{?rhel} == 0
 %global           unbundle_vendor_sources 1
 %endif
 
+%if 0%{?fedora} >= 31
+# Use vendor sources until both Fedora and Grafana properly support golang modules
+%global           unbundle_vendor_sources 0
+%endif
+
 
 Name:             grafana
-Version:          6.2.2
-Release:          2%{?dist}
+Version:          6.3.5
+Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -35,11 +40,13 @@ Source2:          make_grafana_webpack.sh
 Patch1:           001-login-oauth-use-oauth2-exchange.patch
 Patch2:           002-remove-jaeger-tracing.patch
 Patch3:           003-new-files.patch
+Patch4:           004-xerrors.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
 
 # omit golang debugsource, see BZ995136 and related
+%global           dwz_low_mem_die_limit 0
 %global           _debugsource_template %{nil}
 
 %global           GRAFANA_USER %{name}
@@ -50,7 +57,7 @@ ExclusiveArch:    %{grafana_arches}
 %{?systemd_requires}
 Requires(pre):    shadow-utils
 
-BuildRequires:    systemd, golang, go-srpm-macros
+BuildRequires:    git, systemd, golang, go-srpm-macros
 
 Recommends: grafana-cloudwatch = %{version}-%{release}
 Recommends: grafana-elasticsearch = %{version}-%{release}
@@ -193,10 +200,15 @@ BuildRequires: golang(github.com/go-redis/redis)
 BuildRequires: golang(gopkg.in/square/go-jose.v2)
 BuildRequires: golang(gopkg.in/square/go-jose.v2/cipher)
 BuildRequires: golang(gopkg.in/square/go-jose.v2/json)
+%if 0%{fedora} >= 31
+BuildRequires: golang(gopkg.in/yaml.v2)
+%else
 BuildRequires: golang(github.com/go-yaml/yaml)
+%endif
 BuildRequires: golang(golang.org/x/sync/errgroup)
 BuildRequires: golang(gopkg.in/ldap.v3)
 BuildRequires: golang(gopkg.in/mail.v2)
+BuildRequires: golang(github.com/jonboulle/clockwork)
 %endif
 
 # Declare all nodejs modules bundled in the webpack - this is for security
@@ -393,6 +405,7 @@ The Grafana stackdriver datasource.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 # Set up build subdirs and links
 mkdir -p %{_builddir}/src/github.com/grafana
@@ -405,25 +418,32 @@ rm -f public/sass/.sass-lint.yml public/test/.jshintrc
 %if 0%{?unbundle_vendor_sources}
 # Unbundle all grafana vendor sources, as per BuildRequires above.
 # An exception is grafana-plugin-model, which is part of grafana.
-# Another exception is xerrors, which is a transition package
-# for the new Go 1.13 error values, see https://github.com/golang/xerrors
-cp --parents -a vendor/github.com/grafana vendor/golang.org/x/xerrors \
-    vendor/github.com/robfig/cron %{_builddir}
+cp --parents -a vendor/github.com/grafana \
+    vendor/golang.org/x/xerrors \
+    vendor/github.com/robfig vendor/github.com/crewjam/saml \
+    vendor/github.com/ua-parser/uap-go/uaparser  \
+    vendor/github.com/beevik/etree \
+    vendor/github.com/russellhaering/goxmldsig \
+    %{_builddir}
 rm -r vendor # remove all vendor sources
 mv %{_builddir}/vendor vendor # put back what we're keeping
 %endif
 
 
 %build
-# Build the server-side binaries: grafana-server and grafana-cli
-%if 0%{?gobuild}
-# use modern go macros such as in recent Fedora
-export GOPATH=%{_builddir}:%{gopath}
-%gobuild -o grafana-cli ./pkg/cmd/grafana-cli
-%gobuild -o grafana-server ./pkg/cmd/grafana-server
-%else
+# Build the server-side binaries
 cd %{_builddir}/src/github.com/grafana/grafana
+%global archbindir bin/`go env GOOS`-`go env GOARCH`
+echo _builddir=%{_builddir} archbindir=%{archbindir}
+[ ! -d %{archbindir} ] && mkdir -p %{archbindir}
 export GOPATH=%{_builddir}:%{gopath}
+# export GO111MODULE=off
+%if 0%{?fedora} >= 31
+# native fedora golang build but without modules (no grafana support yet)
+go build -mod=vendor -o %{archbindir}/grafana-cli ./pkg/cmd/grafana-cli
+go build -mod=vendor -o %{archbindir}/grafana-server ./pkg/cmd/grafana-server
+%else
+# use the grafana build.go script.
 go run build.go build
 %endif
 
@@ -438,14 +458,17 @@ go run build.go build
 [ ! -d bin/arm64 ] && ln -sf linux-arm64 bin/aarch64
 [ ! -d bin/aarch64 ] && ln -sf linux-aarch64 bin/aarch64
 
-# binaries
+# dirs, shared files, public html, webpack
 install -d %{buildroot}%{_sbindir}
-install -p -m 755 bin/%{_arch}/%{name}-server %{buildroot}%{_sbindir}
-install -p -m 755 bin/%{_arch}/%{name}-cli %{buildroot}%{_sbindir}
-
-# other shared files, public html, webpack
-install -d %{buildroot}%{_datadir}/%{name}
+install -d %{buildroot}%{_datadir}/%{name}/bin
 cp -a conf public %{buildroot}%{_datadir}/%{name}
+
+# wrappers
+install -p -m 755 packaging/wrappers/grafana-cli %{buildroot}%{_sbindir}/%{name}-cli
+
+# binaries
+install -p -m 755 %{archbindir}/%{name}-server %{buildroot}%{_sbindir}
+install -p -m 755 %{archbindir}/%{name}-cli %{buildroot}%{_datadir}/%{name}/bin
 
 # man pages
 install -d %{buildroot}%{_mandir}/man1
@@ -506,6 +529,8 @@ export GOPATH=%{_builddir}:%{gopath}
 rm -f pkg/services/provisioning/dashboards/file_reader_linux_test.go
 rm -f pkg/services/provisioning/dashboards/file_reader_test.go
 rm -f pkg/services/sqlstore/alert_test.go
+rm -f pkg/services/sqlstore/apikey_test.go
+export GO111MODULE=off
 go test ./pkg/...
 
 
@@ -528,6 +553,7 @@ go test ./pkg/...
 %attr(-, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}/plugins
 
 # shared directory and all files therein, except some datasources
+%{_datadir}/%{name}/bin
 %{_datadir}/%{name}/public
 
 # built-in datasources that are sub-packaged
@@ -604,6 +630,20 @@ go test ./pkg/...
 
 
 %changelog
+* Thu Sep 05 2019 Mark Goodwin <mgoodwin@redhat.com> 6.3.5-1
+- drop uaparser patch now it's upstream
+- add xerrors patch, see https://github.com/golang/go/issues/32246
+- use vendor sources on rawhide until modules are fully supported
+- update to latest upstream community sources, see CHANGELOG
+
+* Fri Aug 30 2019 Mark Goodwin <mgoodwin@redhat.com> 6.3.4-1
+- include fix for CVE-2019-15043
+- add patch for uaparser on 32bit systems
+- update to latest upstream community sources, see CHANGELOG
+
+* Wed Jul 31 2019 Mark Goodwin <mgoodwin@redhat.com> 6.2.5-1
+- update to latest upstream community sources, see CHANGELOG
+
 * Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 6.2.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
