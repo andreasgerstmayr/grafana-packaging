@@ -14,14 +14,14 @@ end}
 %global           unbundle_vendor_sources 1
 %endif
 
-%if 0%{?fedora} >= 31
+%if 0%{?fedora} >= 30
 # Use vendor sources until both Fedora and Grafana properly support golang modules
 %global           unbundle_vendor_sources 0
 %endif
 
 
 Name:             grafana
-Version:          6.3.5
+Version:          6.3.6
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -41,6 +41,7 @@ Patch1:           001-login-oauth-use-oauth2-exchange.patch
 Patch2:           002-remove-jaeger-tracing.patch
 Patch3:           003-new-files.patch
 Patch4:           004-xerrors.patch
+Patch5:           005-mute-shellcheck-grafana-cli.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -71,6 +72,7 @@ Recommends: grafana-opentsdb = %{version}-%{release}
 Recommends: grafana-postgres = %{version}-%{release}
 Recommends: grafana-prometheus = %{version}-%{release}
 Recommends: grafana-stackdriver = %{version}-%{release}
+Recommends: grafana-pcp
 
 %if 0%{?unbundle_vendor_sources}
 # golang build deps. These allow us to unbundle vendor golang source.
@@ -406,6 +408,7 @@ The Grafana stackdriver datasource.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 # Set up build subdirs and links
 mkdir -p %{_builddir}/src/github.com/grafana
@@ -630,6 +633,11 @@ go test ./pkg/...
 
 
 %changelog
+* Wed Nov 20 2019 Mark Goodwin <mgoodwin@redhat.com> 6.3.6-1
+- add weak depenency on grafana-pcp
+- add patch to mute shellcheck SC1090 for grafana-cli
+- update to 6.3.6 upstream community sources, see CHANGELOG
+
 * Thu Sep 05 2019 Mark Goodwin <mgoodwin@redhat.com> 6.3.5-1
 - drop uaparser patch now it's upstream
 - add xerrors patch, see https://github.com/golang/go/issues/32246
