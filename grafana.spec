@@ -22,7 +22,7 @@ end}
 
 Name:             grafana
 Version:          6.3.6
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -633,6 +633,9 @@ go test ./pkg/...
 
 
 %changelog
+* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 6.3.6-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Wed Nov 20 2019 Mark Goodwin <mgoodwin@redhat.com> 6.3.6-1
 - add weak depenency on grafana-pcp
 - add patch to mute shellcheck SC1090 for grafana-cli
