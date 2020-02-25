@@ -9,20 +9,14 @@
 end}
 
 # Unbundle Grafana vendor sources and instead use BuildRequires
-# only on platforms that have enough golang devel support.
+# on platforms that have enough golang devel support.
 %if 0%{?rhel} == 0
 %global           unbundle_vendor_sources 1
 %endif
 
-%if 0%{?fedora} >= 30
-# Use vendor sources until both Fedora and Grafana properly support golang modules
-%global           unbundle_vendor_sources 0
-%endif
-
-
 Name:             grafana
-Version:          6.3.6
-Release:          2%{?dist}
+Version:          6.6.2
+Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -36,12 +30,17 @@ Source1:          grafana_webpack-%{version}.tar.gz
 # Source2 is the script to create the above webpack from grafana sources
 Source2:          make_grafana_webpack.sh
 
-# Patches for upstream
+# Patches
+Patch0:           000-set-version-string.patch
 Patch1:           001-login-oauth-use-oauth2-exchange.patch
 Patch2:           002-remove-jaeger-tracing.patch
 Patch3:           003-new-files.patch
-Patch4:           004-xerrors.patch
-Patch5:           005-mute-shellcheck-grafana-cli.patch
+Patch4:           004-wrappers-grafana-cli.patch
+Patch5:           005-pkg-main-fix-import-paths.patch
+Patch6:           006-pkg-setting-ini-default-section.patch
+Patch7:           007-pkg-prometheus-client-query-range.patch
+Patch8:           008-pkg-services-notifications-codes-Unknwon.patch
+Patch9:           009-pkg-fix-xorm-import.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -58,7 +57,7 @@ ExclusiveArch:    %{grafana_arches}
 %{?systemd_requires}
 Requires(pre):    shadow-utils
 
-BuildRequires:    git, systemd, golang, go-srpm-macros
+BuildRequires:    git, systemd, golang, go-srpm-macros go-rpm-macros
 
 Recommends: grafana-cloudwatch = %{version}-%{release}
 Recommends: grafana-elasticsearch = %{version}-%{release}
@@ -72,145 +71,138 @@ Recommends: grafana-opentsdb = %{version}-%{release}
 Recommends: grafana-postgres = %{version}-%{release}
 Recommends: grafana-prometheus = %{version}-%{release}
 Recommends: grafana-stackdriver = %{version}-%{release}
-Recommends: grafana-pcp
+Recommends: grafana-pcp >= 2
 
 %if 0%{?unbundle_vendor_sources}
 # golang build deps. These allow us to unbundle vendor golang source.
+# Note: commented lines are still vendored. See the build section below
+BuildRequires: golang(cloud.google.com/go)
+BuildRequires: golang(github.com/BurntSushi/toml)
+BuildRequires: golang(github.com/VividCortex/mysqlerr)
+BuildRequires: golang(github.com/apache/arrow/go/arrow)
 BuildRequires: golang(github.com/aws/aws-sdk-go)
+BuildRequires: golang(github.com/beevik/etree)
 BuildRequires: golang(github.com/benbjohnson/clock)
 BuildRequires: golang(github.com/beorn7/perks/quantile)
-BuildRequires: golang(github.com/bmizerany/assert)
 BuildRequires: golang(github.com/bradfitz/gomemcache/memcache)
-BuildRequires: golang(github.com/BurntSushi/toml)
-BuildRequires: golang(github.com/codahale/hdrhistogram)
+BuildRequires: golang(github.com/cespare/xxhash)
+BuildRequires: golang(github.com/cheekybits/genny/generic)
 BuildRequires: golang(github.com/codegangsta/cli)
+BuildRequires: golang(github.com/crewjam/saml)
+BuildRequires: golang(github.com/crewjam/saml/xmlenc)
+BuildRequires: golang(github.com/crewjam/saml/logger)
+BuildRequires: golang(github.com/crewjam/httperr)
 BuildRequires: golang(github.com/davecgh/go-spew/spew)
 BuildRequires: golang(github.com/denisenkom/go-mssqldb)
 BuildRequires: golang(github.com/facebookgo/inject)
 BuildRequires: golang(github.com/facebookgo/structtag)
 BuildRequires: golang(github.com/fatih/color)
-BuildRequires: golang(github.com/go-ini/ini)
-BuildRequires: golang(google.golang.org/appengine)
-BuildRequires: golang(golang.org/x/sys/unix)
 BuildRequires: golang(github.com/go-macaron/binding)
 BuildRequires: golang(github.com/go-macaron/gzip)
 BuildRequires: golang(github.com/go-macaron/inject)
 BuildRequires: golang(github.com/go-macaron/session)
-BuildRequires: golang(google.golang.org/genproto/googleapis/rpc/status)
+BuildRequires: golang(github.com/go-sql-driver/mysql)
+BuildRequires: golang(github.com/go-stack/stack)
+
+BuildRequires: golang(xorm.io/xorm)
+BuildRequires: golang(xorm.io/core)
+BuildRequires: golang(xorm.io/builder) >= 0.3.6
+
 BuildRequires: golang(github.com/gobwas/glob)
-BuildRequires: golang(github.com/gobwas/glob/compiler)
-BuildRequires: golang(github.com/gobwas/glob/match)
-BuildRequires: golang(github.com/gobwas/glob/syntax)
-BuildRequires: golang(github.com/gobwas/glob/syntax/ast)
-BuildRequires: golang(github.com/gobwas/glob/syntax/lexer)
-BuildRequires: golang(github.com/gobwas/glob/util/runes)
-BuildRequires: golang(github.com/gobwas/glob/util/strings)
+BuildRequires: golang(github.com/golang/snappy)
+BuildRequires: golang(github.com/google/flatbuffers/go)
 BuildRequires: golang(github.com/gopherjs/gopherjs/js)
 BuildRequires: golang(github.com/gorilla/websocket)
 BuildRequires: golang(github.com/gosimple/slug)
-BuildRequires: golang(github.com/go-sql-driver/mysql)
-BuildRequires: golang(github.com/go-stack/stack)
-BuildRequires: golang(github.com/go-xorm/builder)
-BuildRequires: golang(github.com/go-xorm/core)
-BuildRequires: golang(github.com/go-xorm/xorm)
-BuildRequires: golang(google.golang.org/grpc)
+
+# These two are considered part of grafana, use vendored code
+# BuildRequires: golang(github.com/grafana/grafana-plugin-model)
+# BuildRequires: golang(github.com/grafana/grafana-plugin-sdk-go)
+
+BuildRequires: golang(github.com/grpc-ecosystem/go-grpc-prometheus)
+BuildRequires: golang(github.com/golang/protobuf/proto)
+BuildRequires: golang(github.com/golang/protobuf/ptypes/any)
+BuildRequires: golang(github.com/golang/protobuf/ptypes/duration)
+BuildRequires: golang(github.com/golang/protobuf/ptypes/empty)
+BuildRequires: golang(github.com/golang/protobuf/ptypes/timestamp)
 BuildRequires: golang(github.com/hashicorp/go-hclog)
-# need grpc_broker in go-plugin >= 1.0.0-1
 BuildRequires: golang(github.com/hashicorp/go-plugin)
 BuildRequires: golang(github.com/hashicorp/go-version)
 BuildRequires: golang(github.com/hashicorp/yamux)
 BuildRequires: golang(github.com/inconshreveable/log15)
 BuildRequires: golang(github.com/jmespath/go-jmespath)
+BuildRequires: golang(github.com/jonboulle/clockwork)
+BuildRequires: golang(github.com/json-iterator/go)
 BuildRequires: golang(github.com/jtolds/gls)
-BuildRequires: golang(github.com/klauspost/compress/flate)
-BuildRequires: golang(github.com/klauspost/compress/gzip)
-BuildRequires: golang(github.com/klauspost/compress/snappy)
+BuildRequires: golang(github.com/jung-kurt/gofpdf)
+BuildRequires: golang(github.com/klauspost/compress)
 BuildRequires: golang(github.com/klauspost/cpuid)
-BuildRequires: golang(github.com/klauspost/crc32)
-BuildRequires: golang(github.com/kr/pretty)
-BuildRequires: golang(github.com/kr/text)
 BuildRequires: golang(github.com/lib/pq)
+BuildRequires: golang(github.com/linkedin/goavro)
+BuildRequires: golang(github.com/mattetti/filebuffer)
 BuildRequires: golang(github.com/mattn/go-colorable)
 BuildRequires: golang(github.com/mattn/go-isatty)
 BuildRequires: golang(github.com/mattn/go-sqlite3)
 BuildRequires: golang(github.com/matttproud/golang_protobuf_extensions/pbutil)
 BuildRequires: golang(github.com/mitchellh/go-testing-interface)
+BuildRequires: golang(github.com/modern-go/concurrent)
+BuildRequires: golang(github.com/modern-go/reflect2)
 BuildRequires: golang(github.com/oklog/run)
 BuildRequires: golang(github.com/opentracing/opentracing-go)
 BuildRequires: golang(github.com/patrickmn/go-cache)
 BuildRequires: golang(github.com/pkg/errors)
+BuildRequires: golang(github.com/pmezard/go-difflib/difflib)
 BuildRequires: golang(github.com/prometheus/client_golang/api)
-BuildRequires: golang(github.com/prometheus/client_golang/api/prometheus/v1)
 BuildRequires: golang(github.com/prometheus/client_model/go)
-BuildRequires: golang-github-prometheus-common-devel
-BuildRequires: golang(github.com/prometheus/common/expfmt)
 BuildRequires: golang(github.com/prometheus/common/model)
-BuildRequires: golang(github.com/prometheus/common/expfmt)
 BuildRequires: golang(github.com/prometheus/procfs)
-BuildRequires: golang(github.com/prometheus/procfs/internal/util)
-BuildRequires: golang(github.com/prometheus/procfs)
-BuildRequires: golang(github.com/prometheus/procfs/internal/util)
-BuildRequires: golang(github.com/prometheus/procfs/nfs)
-BuildRequires: golang(github.com/prometheus/procfs/xfs)
 BuildRequires: golang(github.com/rainycape/unidecode)
+BuildRequires: golang(github.com/robfig/cron)
+BuildRequires: golang(gopkg.in/robfig/cron.v3)
+BuildRequires: golang(github.com/russellhaering/goxmldsig)
 BuildRequires: golang(github.com/sergi/go-diff/diffmatchpatch)
 BuildRequires: golang(github.com/smartystreets/assertions)
 BuildRequires: golang(github.com/smartystreets/goconvey/convey)
 BuildRequires: golang(github.com/smartystreets/goconvey/convey/gotest)
 BuildRequires: golang(github.com/smartystreets/goconvey/convey/reporting)
+BuildRequires: golang(github.com/stretchr/testify)
 BuildRequires: golang(github.com/teris-io/shortid)
+BuildRequires: golang(github.com/ua-parser/uap-go/uaparser)
 BuildRequires: golang(github.com/Unknwon/com)
-BuildRequires: golang(github.com/VividCortex/mysqlerr)
 BuildRequires: golang(github.com/yudai/gojsondiff)
 BuildRequires: golang(github.com/yudai/golcs)
-BuildRequires: golang(golang.org/x/crypto/pbkdf2)
+BuildRequires: golang(go.uber.org/atomic)
 BuildRequires: golang(golang.org/x/crypto/ed25519)
 BuildRequires: golang(golang.org/x/crypto/md4)
+BuildRequires: golang(golang.org/x/crypto/pbkdf2)
+BuildRequires: golang(golang.org/x/crypto/ripemd160)
+BuildRequires: golang(golang.org/x/lint)
 BuildRequires: golang(golang.org/x/net/context)
-BuildRequires: golang(golang.org/x/net/context/ctxhttp)
-BuildRequires: golang(golang.org/x/net/http2)
-BuildRequires: golang(golang.org/x/net/http2/hpack)
 BuildRequires: golang(golang.org/x/net/http/httpguts)
+BuildRequires: golang(golang.org/x/net/http2)
 BuildRequires: golang(golang.org/x/net/idna)
 BuildRequires: golang(golang.org/x/net/internal/timeseries)
 BuildRequires: golang(golang.org/x/net/trace)
-BuildRequires: golang(golang.org/x/text/collate)
-BuildRequires: golang(golang.org/x/text/collate/build)
-BuildRequires: golang(golang.org/x/text/internal/colltab)
-BuildRequires: golang(golang.org/x/text/internal/gen)
-BuildRequires: golang(golang.org/x/text/internal/tag)
-BuildRequires: golang(golang.org/x/text/internal/triegen)
-BuildRequires: golang(golang.org/x/text/internal/ucd)
 BuildRequires: golang(golang.org/x/oauth2)
-BuildRequires: golang(golang.org/x/oauth2/google)
-BuildRequires: golang(golang.org/x/oauth2/internal)
-BuildRequires: golang(golang.org/x/oauth2/jws)
-BuildRequires: golang(golang.org/x/oauth2/jwt)
-BuildRequires: golang(github.com/golang/protobuf/proto)
-BuildRequires: golang(github.com/golang/protobuf/ptypes)
-BuildRequires: golang(github.com/golang/protobuf/ptypes)
-BuildRequires: golang(github.com/golang/protobuf/ptypes/duration)
-BuildRequires: golang(github.com/golang/protobuf/ptypes/any)
-BuildRequires: golang(github.com/golang/protobuf/ptypes/timestamp)
-BuildRequires: golang(cloud.google.com/go/compute/metadata)
+BuildRequires: golang(golang.org/x/sync/errgroup)
+BuildRequires: golang(golang.org/x/sys/unix)
+BuildRequires: golang(golang.org/x/text)
+BuildRequires: golang(golang.org/x/tools/go/ast/astutil)
+BuildRequires: golang(golang.org/x/tools/go/gcexportdata)
+BuildRequires: golang(golang.org/x/tools/go/internal/gcimporter)
+BuildRequires: golang(golang.org/x/xerrors)
+BuildRequires: golang(google.golang.org/appengine)
+BuildRequires: golang(google.golang.org/genproto/googleapis/rpc/status)
+BuildRequires: golang(google.golang.org/grpc)
 BuildRequires: golang(gopkg.in/alexcesaro/quotedprintable.v3)
 BuildRequires: golang(gopkg.in/asn1-ber.v1)
-BuildRequires: golang(github.com/go-bufio/bufio)
-BuildRequires: golang(github.com/go-ini/ini)
-BuildRequires: golang(github.com/go-macaron/macaron)
-BuildRequires: golang(github.com/go-redis/redis)
-BuildRequires: golang(gopkg.in/square/go-jose.v2)
-BuildRequires: golang(gopkg.in/square/go-jose.v2/cipher)
-BuildRequires: golang(gopkg.in/square/go-jose.v2/json)
-%if 0%{fedora} >= 31
-BuildRequires: golang(gopkg.in/yaml.v2)
-%else
-BuildRequires: golang(github.com/go-yaml/yaml)
-%endif
-BuildRequires: golang(golang.org/x/sync/errgroup)
+BuildRequires: golang(gopkg.in/ini.v1)
 BuildRequires: golang(gopkg.in/ldap.v3)
+BuildRequires: golang(gopkg.in/macaron.v1)
 BuildRequires: golang(gopkg.in/mail.v2)
-BuildRequires: golang(github.com/jonboulle/clockwork)
+BuildRequires: golang(gopkg.in/redis.v5)
+BuildRequires: golang(gopkg.in/square/go-jose.v2)
+BuildRequires: golang(gopkg.in/yaml.v2)
 %endif
 
 # Declare all nodejs modules bundled in the webpack - this is for security
@@ -404,11 +396,16 @@ The Grafana stackdriver datasource.
 %prep
 %setup -q -T -D -b 0
 %setup -q -T -D -b 1
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
 
 # Set up build subdirs and links
 mkdir -p %{_builddir}/src/github.com/grafana
@@ -420,36 +417,26 @@ rm -f public/sass/.sass-lint.yml public/test/.jshintrc
 
 %if 0%{?unbundle_vendor_sources}
 # Unbundle all grafana vendor sources, as per BuildRequires above.
-# An exception is grafana-plugin-model, which is part of grafana.
-cp --parents -a vendor/github.com/grafana \
-    vendor/golang.org/x/xerrors \
-    vendor/github.com/robfig vendor/github.com/crewjam/saml \
-    vendor/github.com/ua-parser/uap-go/uaparser  \
-    vendor/github.com/beevik/etree \
-    vendor/github.com/russellhaering/goxmldsig \
+# Note there are some exceptions.
+cp --parents -a \
+    vendor/github.com/grafana/grafana-plugin-model \
+    vendor/github.com/grafana/grafana-plugin-sdk-go \
     %{_builddir}
 rm -r vendor # remove all vendor sources
 mv %{_builddir}/vendor vendor # put back what we're keeping
 %endif
 
-
 %build
 # Build the server-side binaries
 cd %{_builddir}/src/github.com/grafana/grafana
 %global archbindir bin/`go env GOOS`-`go env GOARCH`
-echo _builddir=%{_builddir} archbindir=%{archbindir}
+echo _builddir=%{_builddir} archbindir=%{archbindir} gopath=%{gopath}
 [ ! -d %{archbindir} ] && mkdir -p %{archbindir}
+# non-modular build
 export GOPATH=%{_builddir}:%{gopath}
-# export GO111MODULE=off
-%if 0%{?fedora} >= 31
-# native fedora golang build but without modules (no grafana support yet)
-go build -mod=vendor -o %{archbindir}/grafana-cli ./pkg/cmd/grafana-cli
-go build -mod=vendor -o %{archbindir}/grafana-server ./pkg/cmd/grafana-server
-%else
-# use the grafana build.go script.
-go run build.go build
-%endif
-
+export GO111MODULE=off; rm -f go.mod
+%gobuild -o %{archbindir}/grafana-cli ./pkg/cmd/grafana-cli
+%gobuild -o %{archbindir}/grafana-server ./pkg/cmd/grafana-server
 
 %install
 # Fix up arch bin directories
@@ -463,7 +450,8 @@ go run build.go build
 
 # dirs, shared files, public html, webpack
 install -d %{buildroot}%{_sbindir}
-install -d %{buildroot}%{_datadir}/%{name}/bin
+install -d %{buildroot}%{_datadir}/%{name}
+install -d %{buildroot}%{_libexecdir}/%{name}
 cp -a conf public %{buildroot}%{_datadir}/%{name}
 
 # wrappers
@@ -471,7 +459,7 @@ install -p -m 755 packaging/wrappers/grafana-cli %{buildroot}%{_sbindir}/%{name}
 
 # binaries
 install -p -m 755 %{archbindir}/%{name}-server %{buildroot}%{_sbindir}
-install -p -m 755 %{archbindir}/%{name}-cli %{buildroot}%{_datadir}/%{name}/bin
+install -p -m 755 %{archbindir}/%{name}-cli %{buildroot}%{_libexecdir}/%{name}
 
 # man pages
 install -d %{buildroot}%{_mandir}/man1
@@ -528,19 +516,19 @@ exit 0
 %check
 cd %{_builddir}/src/github.com/grafana/grafana
 export GOPATH=%{_builddir}:%{gopath}
-# remove tests currently failing
+# remove tests currently failing - these two are due to a symlink
+# BUILD/src/github.com/grafana/grafana -> BUILD/grafana-6.6.1
 rm -f pkg/services/provisioning/dashboards/file_reader_linux_test.go
 rm -f pkg/services/provisioning/dashboards/file_reader_test.go
-rm -f pkg/services/sqlstore/alert_test.go
-rm -f pkg/services/sqlstore/apikey_test.go
 export GO111MODULE=off
-go test ./pkg/...
+%gotest ./pkg/...
 
 
 %files
-# binaries
+# binaries and wrappers
 %{_sbindir}/%{name}-server
 %{_sbindir}/%{name}-cli
+%{_libexecdir}/%{name}
 
 # config files
 %dir %{_sysconfdir}/%{name}
@@ -556,7 +544,7 @@ go test ./pkg/...
 %attr(-, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}/plugins
 
 # shared directory and all files therein, except some datasources
-%{_datadir}/%{name}/bin
+%{_datadir}/%{name}
 %{_datadir}/%{name}/public
 
 # built-in datasources that are sub-packaged
@@ -633,8 +621,12 @@ go test ./pkg/...
 
 
 %changelog
-* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 6.3.6-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+* Wed Feb 26 2020 Mark Goodwin <mgoodwin@redhat.com> 6.6.2-1
+- added patch0 to set the version string correctly
+- removed patch 004-xerrors.patch, it's now upstream
+- added several patches for golang vendored vrs build dep differences
+- added patch to move grafana-cli binary to libexec dir
+- update to 6.6.2 tagged upstream community sources, see CHANGELOG
 
 * Wed Nov 20 2019 Mark Goodwin <mgoodwin@redhat.com> 6.3.6-1
 - add weak depenency on grafana-pcp

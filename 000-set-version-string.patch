@@ -1,0 +1,15 @@
+diff --git a/pkg/cmd/grafana-server/main.go b/pkg/cmd/grafana-server/main.go
+index 14d6036e82..d2e61564f2 100644
+--- a/pkg/cmd/grafana-server/main.go
++++ b/pkg/cmd/grafana-server/main.go
+@@ -32,8 +32,8 @@ import (
+ 	_ "github.com/grafana/grafana/pkg/tsdb/testdatasource"
+ )
+ 
+-var version = "5.0.0"
+-var commit = "NA"
++var version = "6.6.2"
++var commit = "3fa63cfc34668781c7f9b3caafe6d9d400b06b7f"
+ var buildBranch = "master"
+ var buildstamp string
+ 
