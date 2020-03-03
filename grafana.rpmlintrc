@@ -1,0 +1,6 @@
+addFilter("W: non-standard-gid.* grafana")
+addFilter("W: non-standard-uid.* grafana")
+addFilter("E: script-without-shebang .*\.json")
+addFilter("E: zero-length .*\.scss")
+addFilter("W: log-files-without-logrotate .*")
+addFilter("W: no-documentation")
