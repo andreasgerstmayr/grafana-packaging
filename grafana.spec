@@ -59,6 +59,7 @@ Requires(pre):    shadow-utils
 
 BuildRequires:    git, systemd, golang, go-srpm-macros go-rpm-macros
 
+%if 0%{?fedora} || 0%{?rhel} > 7
 Recommends: grafana-cloudwatch = %{version}-%{release}
 Recommends: grafana-elasticsearch = %{version}-%{release}
 Recommends: grafana-azure-monitor = %{version}-%{release}
@@ -72,6 +73,7 @@ Recommends: grafana-postgres = %{version}-%{release}
 Recommends: grafana-prometheus = %{version}-%{release}
 Recommends: grafana-stackdriver = %{version}-%{release}
 Recommends: grafana-pcp >= 2
+%endif
 
 %if 0%{?unbundle_vendor_sources}
 # golang build deps. These allow us to unbundle vendor golang source.
