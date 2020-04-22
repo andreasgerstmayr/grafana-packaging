@@ -15,7 +15,8 @@ end}
 %endif
 
 Name:             grafana
-Version:          6.6.2
+Version:          6.7.2
+%global commit    423a25f
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -30,11 +31,13 @@ Source1:          grafana_webpack-%{version}.tar.gz
 # Source2 is the script to create the above webpack from grafana sources
 Source2:          make_grafana_webpack.sh
 
+# Source3 contains Grafana configuration defaults for distributions
+Source3:          distro-defaults.ini
+
 # Patches
-Patch0:           000-set-version-string.patch
 Patch1:           001-login-oauth-use-oauth2-exchange.patch
 Patch2:           002-remove-jaeger-tracing.patch
-Patch3:           003-new-files.patch
+Patch3:           003-manpages.patch
 Patch4:           004-wrappers-grafana-cli.patch
 Patch5:           005-pkg-main-fix-import-paths.patch
 Patch6:           006-pkg-setting-ini-default-section.patch
@@ -75,232 +78,185 @@ Recommends: grafana-pcp >= 2
 
 %if 0%{?unbundle_vendor_sources}
 # golang build deps. These allow us to unbundle vendor golang source.
-# Note: commented lines are still vendored. See the build section below
-BuildRequires: golang(cloud.google.com/go)
-BuildRequires: golang(github.com/BurntSushi/toml)
-BuildRequires: golang(github.com/VividCortex/mysqlerr)
+# Note: generated with the list_go_buildrequires.sh script (see README.md)
 BuildRequires: golang(github.com/apache/arrow/go/arrow)
-BuildRequires: golang(github.com/aws/aws-sdk-go)
-BuildRequires: golang(github.com/beevik/etree)
+BuildRequires: golang(github.com/apache/arrow/go/arrow/array)
+BuildRequires: golang(github.com/apache/arrow/go/arrow/ipc)
+BuildRequires: golang(github.com/apache/arrow/go/arrow/memory)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws/awsutil)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws/credentials)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws/credentials/endpointcreds)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws/defaults)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws/ec2metadata)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws/request)
+BuildRequires: golang(github.com/aws/aws-sdk-go/aws/session)
+BuildRequires: golang(github.com/aws/aws-sdk-go/service/cloudwatch)
+BuildRequires: golang(github.com/aws/aws-sdk-go/service/ec2)
+BuildRequires: golang(github.com/aws/aws-sdk-go/service/ec2/ec2iface)
+BuildRequires: golang(github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi)
+BuildRequires: golang(github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi/resourcegroupstaggingapiiface)
+BuildRequires: golang(github.com/aws/aws-sdk-go/service/s3/s3manager)
+BuildRequires: golang(github.com/aws/aws-sdk-go/service/sts)
 BuildRequires: golang(github.com/benbjohnson/clock)
-BuildRequires: golang(github.com/beorn7/perks/quantile)
 BuildRequires: golang(github.com/bradfitz/gomemcache/memcache)
-BuildRequires: golang(github.com/cespare/xxhash)
+BuildRequires: golang(github.com/BurntSushi/toml)
 BuildRequires: golang(github.com/cheekybits/genny/generic)
-BuildRequires: golang(github.com/codegangsta/cli)
 BuildRequires: golang(github.com/crewjam/saml)
-BuildRequires: golang(github.com/crewjam/saml/xmlenc)
-BuildRequires: golang(github.com/crewjam/saml/logger)
-BuildRequires: golang(github.com/crewjam/httperr)
 BuildRequires: golang(github.com/davecgh/go-spew/spew)
 BuildRequires: golang(github.com/denisenkom/go-mssqldb)
 BuildRequires: golang(github.com/facebookgo/inject)
-BuildRequires: golang(github.com/facebookgo/structtag)
 BuildRequires: golang(github.com/fatih/color)
+BuildRequires: golang(github.com/gobwas/glob)
+BuildRequires: golang(github.com/golang/protobuf/proto)
 BuildRequires: golang(github.com/go-macaron/binding)
 BuildRequires: golang(github.com/go-macaron/gzip)
-BuildRequires: golang(github.com/go-macaron/inject)
 BuildRequires: golang(github.com/go-macaron/session)
-BuildRequires: golang(github.com/go-sql-driver/mysql)
-BuildRequires: golang(github.com/go-stack/stack)
-
-BuildRequires: golang(xorm.io/xorm)
-BuildRequires: golang(xorm.io/core)
-BuildRequires: golang(xorm.io/builder) >= 0.3.6
-
-BuildRequires: golang(github.com/gobwas/glob)
-BuildRequires: golang(github.com/golang/snappy)
-BuildRequires: golang(github.com/google/flatbuffers/go)
-BuildRequires: golang(github.com/gopherjs/gopherjs/js)
+BuildRequires: golang(github.com/google/go-cmp/cmp)
+BuildRequires: golang(github.com/google/go-cmp/cmp/cmpopts)
 BuildRequires: golang(github.com/gorilla/websocket)
 BuildRequires: golang(github.com/gosimple/slug)
-
-# These two are considered part of grafana, use vendored code
-# BuildRequires: golang(github.com/grafana/grafana-plugin-model)
-# BuildRequires: golang(github.com/grafana/grafana-plugin-sdk-go)
-
-BuildRequires: golang(github.com/grpc-ecosystem/go-grpc-prometheus)
-BuildRequires: golang(github.com/golang/protobuf/proto)
-BuildRequires: golang(github.com/golang/protobuf/ptypes/any)
-BuildRequires: golang(github.com/golang/protobuf/ptypes/duration)
-BuildRequires: golang(github.com/golang/protobuf/ptypes/empty)
-BuildRequires: golang(github.com/golang/protobuf/ptypes/timestamp)
+BuildRequires: golang(github.com/go-sql-driver/mysql)
+BuildRequires: golang(github.com/go-stack/stack)
+BuildRequires: golang(github.com/go-xorm/core)
 BuildRequires: golang(github.com/hashicorp/go-hclog)
 BuildRequires: golang(github.com/hashicorp/go-plugin)
 BuildRequires: golang(github.com/hashicorp/go-version)
-BuildRequires: golang(github.com/hashicorp/yamux)
 BuildRequires: golang(github.com/inconshreveable/log15)
 BuildRequires: golang(github.com/jmespath/go-jmespath)
-BuildRequires: golang(github.com/jonboulle/clockwork)
-BuildRequires: golang(github.com/json-iterator/go)
-BuildRequires: golang(github.com/jtolds/gls)
 BuildRequires: golang(github.com/jung-kurt/gofpdf)
-BuildRequires: golang(github.com/klauspost/compress)
-BuildRequires: golang(github.com/klauspost/cpuid)
 BuildRequires: golang(github.com/lib/pq)
 BuildRequires: golang(github.com/linkedin/goavro)
 BuildRequires: golang(github.com/mattetti/filebuffer)
-BuildRequires: golang(github.com/mattn/go-colorable)
 BuildRequires: golang(github.com/mattn/go-isatty)
 BuildRequires: golang(github.com/mattn/go-sqlite3)
-BuildRequires: golang(github.com/matttproud/golang_protobuf_extensions/pbutil)
-BuildRequires: golang(github.com/mitchellh/go-testing-interface)
-BuildRequires: golang(github.com/modern-go/concurrent)
-BuildRequires: golang(github.com/modern-go/reflect2)
-BuildRequires: golang(github.com/oklog/run)
 BuildRequires: golang(github.com/opentracing/opentracing-go)
+BuildRequires: golang(github.com/opentracing/opentracing-go/ext)
+BuildRequires: golang(github.com/opentracing/opentracing-go/log)
 BuildRequires: golang(github.com/patrickmn/go-cache)
 BuildRequires: golang(github.com/pkg/errors)
-BuildRequires: golang(github.com/pmezard/go-difflib/difflib)
 BuildRequires: golang(github.com/prometheus/client_golang/api)
+BuildRequires: golang(github.com/prometheus/client_golang/api/prometheus/v1)
+BuildRequires: golang(github.com/prometheus/client_golang/prometheus)
+BuildRequires: golang(github.com/prometheus/client_golang/prometheus/promhttp)
 BuildRequires: golang(github.com/prometheus/client_model/go)
+BuildRequires: golang(github.com/prometheus/common/expfmt)
 BuildRequires: golang(github.com/prometheus/common/model)
-BuildRequires: golang(github.com/prometheus/procfs)
-BuildRequires: golang(github.com/rainycape/unidecode)
 BuildRequires: golang(github.com/robfig/cron)
-BuildRequires: golang(gopkg.in/robfig/cron.v3)
-BuildRequires: golang(github.com/russellhaering/goxmldsig)
-BuildRequires: golang(github.com/sergi/go-diff/diffmatchpatch)
-BuildRequires: golang(github.com/smartystreets/assertions)
 BuildRequires: golang(github.com/smartystreets/goconvey/convey)
-BuildRequires: golang(github.com/smartystreets/goconvey/convey/gotest)
-BuildRequires: golang(github.com/smartystreets/goconvey/convey/reporting)
-BuildRequires: golang(github.com/stretchr/testify)
+BuildRequires: golang(github.com/stretchr/testify/require)
 BuildRequires: golang(github.com/teris-io/shortid)
 BuildRequires: golang(github.com/ua-parser/uap-go/uaparser)
+BuildRequires: golang(github.com/uber/jaeger-client-go/config)
+BuildRequires: golang(github.com/uber/jaeger-client-go/zipkin)
 BuildRequires: golang(github.com/Unknwon/com)
+BuildRequires: golang(github.com/urfave/cli/v2)
+BuildRequires: golang(github.com/VividCortex/mysqlerr)
 BuildRequires: golang(github.com/yudai/gojsondiff)
-BuildRequires: golang(github.com/yudai/golcs)
-BuildRequires: golang(go.uber.org/atomic)
-BuildRequires: golang(golang.org/x/crypto/ed25519)
-BuildRequires: golang(golang.org/x/crypto/md4)
+BuildRequires: golang(github.com/yudai/gojsondiff/formatter)
 BuildRequires: golang(golang.org/x/crypto/pbkdf2)
-BuildRequires: golang(golang.org/x/crypto/ripemd160)
-BuildRequires: golang(golang.org/x/lint)
 BuildRequires: golang(golang.org/x/net/context)
-BuildRequires: golang(golang.org/x/net/http/httpguts)
-BuildRequires: golang(golang.org/x/net/http2)
-BuildRequires: golang(golang.org/x/net/idna)
-BuildRequires: golang(golang.org/x/net/internal/timeseries)
-BuildRequires: golang(golang.org/x/net/trace)
+BuildRequires: golang(golang.org/x/net/context/ctxhttp)
 BuildRequires: golang(golang.org/x/oauth2)
+BuildRequires: golang(golang.org/x/oauth2/google)
+BuildRequires: golang(golang.org/x/oauth2/jwt)
 BuildRequires: golang(golang.org/x/sync/errgroup)
-BuildRequires: golang(golang.org/x/sys/unix)
-BuildRequires: golang(golang.org/x/text)
-BuildRequires: golang(golang.org/x/tools/go/ast/astutil)
-BuildRequires: golang(golang.org/x/tools/go/gcexportdata)
-BuildRequires: golang(golang.org/x/tools/go/internal/gcimporter)
 BuildRequires: golang(golang.org/x/xerrors)
-BuildRequires: golang(google.golang.org/appengine)
-BuildRequires: golang(google.golang.org/genproto/googleapis/rpc/status)
 BuildRequires: golang(google.golang.org/grpc)
-BuildRequires: golang(gopkg.in/alexcesaro/quotedprintable.v3)
-BuildRequires: golang(gopkg.in/asn1-ber.v1)
+BuildRequires: golang(google.golang.org/grpc/codes)
+BuildRequires: golang(google.golang.org/grpc/metadata)
+BuildRequires: golang(google.golang.org/grpc/status)
 BuildRequires: golang(gopkg.in/ini.v1)
 BuildRequires: golang(gopkg.in/ldap.v3)
 BuildRequires: golang(gopkg.in/macaron.v1)
 BuildRequires: golang(gopkg.in/mail.v2)
 BuildRequires: golang(gopkg.in/redis.v5)
+BuildRequires: golang(gopkg.in/robfig/cron.v3)
 BuildRequires: golang(gopkg.in/square/go-jose.v2)
+BuildRequires: golang(gopkg.in/square/go-jose.v2/jwt)
 BuildRequires: golang(gopkg.in/yaml.v2)
+BuildRequires: golang(xorm.io/xorm)
 %endif
 
 # Declare all nodejs modules bundled in the webpack - this is for security
 # purposes so if nodejs-foo ever needs an update, affected packages can be
-# easily identified. This is generated from package-lock.json once the webpack
-# has been built with make_webpack.sh.
-Provides: bundled(nodejs-abbrev) = 1.1.1
-Provides: bundled(nodejs-ansi-regex) = 2.1.1
-Provides: bundled(nodejs-ansi-styles) = 2.2.1
-Provides: bundled(nodejs-argparse) = 1.0.10
-Provides: bundled(nodejs-array-find-index) = 1.0.2
-Provides: bundled(nodejs-async) = 1.5.2
-Provides: bundled(nodejs-balanced-match) = 1.0.0
-Provides: bundled(nodejs-brace-expansion) = 1.1.11
-Provides: bundled(nodejs-builtin-modules) = 1.1.1
-Provides: bundled(nodejs-camelcase) = 2.1.1
-Provides: bundled(nodejs-camelcase-keys) = 2.1.0
-Provides: bundled(nodejs-chalk) = 1.1.3
-Provides: bundled(nodejs-coffee-script) = 1.10.0
-Provides: bundled(nodejs-colors) = 1.1.2
-Provides: bundled(nodejs-concat-map) = 0.0.1
-Provides: bundled(nodejs-currently-unhandled) = 0.4.1
-Provides: bundled(nodejs-dateformat) = 1.0.12
-Provides: bundled(nodejs-decamelize) = 1.2.0
-Provides: bundled(nodejs-error-ex) = 1.3.2
-Provides: bundled(nodejs-escape-string-regexp) = 1.0.5
-Provides: bundled(nodejs-esprima) = 2.7.3
-Provides: bundled(nodejs-eventemitter2) = 0.4.14
-Provides: bundled(nodejs-exit) = 0.1.2
-Provides: bundled(nodejs-find-up) = 1.1.2
-Provides: bundled(nodejs-findup-sync) = 0.3.0
-Provides: bundled(nodejs-fs.realpath) = 1.0.0
-Provides: bundled(nodejs-get-stdin) = 4.0.1
-Provides: bundled(nodejs-getobject) = 0.1.0
-Provides: bundled(nodejs-glob) = 7.0.6
-Provides: bundled(nodejs-graceful-fs) = 4.1.15
-Provides: bundled(nodejs-grunt) = 1.0.1
-Provides: bundled(nodejs-grunt-cli) = 1.2.0
-Provides: bundled(nodejs-grunt-known-options) = 1.1.1
-Provides: bundled(nodejs-grunt-legacy-log) = 1.0.2
-Provides: bundled(nodejs-lodash) = 4.17.11
-Provides: bundled(nodejs-grunt-legacy-log-utils) = 1.0.0
-Provides: bundled(nodejs-grunt-legacy-util) = 1.0.0
-Provides: bundled(nodejs-has-ansi) = 2.0.0
-Provides: bundled(nodejs-hooker) = 0.2.3
-Provides: bundled(nodejs-hosted-git-info) = 2.7.1
-Provides: bundled(nodejs-iconv-lite) = 0.4.24
-Provides: bundled(nodejs-indent-string) = 2.1.0
-Provides: bundled(nodejs-inflight) = 1.0.6
-Provides: bundled(nodejs-inherits) = 2.0.3
-Provides: bundled(nodejs-is-arrayish) = 0.2.1
-Provides: bundled(nodejs-is-builtin-module) = 1.0.0
-Provides: bundled(nodejs-is-finite) = 1.0.2
-Provides: bundled(nodejs-is-utf8) = 0.2.1
-Provides: bundled(nodejs-isexe) = 2.0.0
-Provides: bundled(nodejs-js-yaml) = 3.5.5
-Provides: bundled(nodejs-load-json-file) = 1.1.0
-Provides: bundled(nodejs-loud-rejection) = 1.6.0
-Provides: bundled(nodejs-map-obj) = 1.0.1
-Provides: bundled(nodejs-meow) = 3.7.0
-Provides: bundled(nodejs-minimatch) = 3.0.4
-Provides: bundled(nodejs-minimist) = 1.2.0
-Provides: bundled(nodejs-nopt) = 3.0.6
-Provides: bundled(nodejs-normalize-package-data) = 2.4.2
-Provides: bundled(nodejs-number-is-nan) = 1.0.1
-Provides: bundled(nodejs-object-assign) = 4.1.1
-Provides: bundled(nodejs-once) = 1.4.0
-Provides: bundled(nodejs-parse-json) = 2.2.0
-Provides: bundled(nodejs-path-exists) = 2.1.0
-Provides: bundled(nodejs-path-is-absolute) = 1.0.1
-Provides: bundled(nodejs-path-type) = 1.1.0
-Provides: bundled(nodejs-pify) = 2.3.0
-Provides: bundled(nodejs-pinkie) = 2.0.4
-Provides: bundled(nodejs-pinkie-promise) = 2.0.1
-Provides: bundled(nodejs-read-pkg) = 1.1.0
-Provides: bundled(nodejs-read-pkg-up) = 1.0.1
-Provides: bundled(nodejs-redent) = 1.0.0
-Provides: bundled(nodejs-repeating) = 2.0.1
-Provides: bundled(nodejs-resolve) = 1.1.7
-Provides: bundled(nodejs-rimraf) = 2.2.8
-Provides: bundled(nodejs-safer-buffer) = 2.1.2
-Provides: bundled(nodejs-semver) = 5.6.0
-Provides: bundled(nodejs-signal-exit) = 3.0.2
-Provides: bundled(nodejs-spdx-correct) = 3.1.0
-Provides: bundled(nodejs-spdx-exceptions) = 2.2.0
-Provides: bundled(nodejs-spdx-expression-parse) = 3.0.0
-Provides: bundled(nodejs-spdx-license-ids) = 3.0.3
-Provides: bundled(nodejs-sprintf-js) = 1.0.3
-Provides: bundled(nodejs-strip-ansi) = 3.0.1
-Provides: bundled(nodejs-strip-bom) = 2.0.0
-Provides: bundled(nodejs-strip-indent) = 1.0.1
-Provides: bundled(nodejs-supports-color) = 2.0.0
-Provides: bundled(nodejs-trim-newlines) = 1.0.0
-Provides: bundled(nodejs-underscore.string) = 3.2.3
-Provides: bundled(nodejs-validate-npm-package-license) = 3.0.4
-Provides: bundled(nodejs-which) = 1.2.14
-Provides: bundled(nodejs-wrappy) = 1.0.2
-Provides: bundled(nodejs-yarn) = 1.13.0
+# easily identified.
+# Note: generated with the list_bundled_nodejs_packages.sh script (see README.md)
+Provides: bundled(nodejs-@braintree/sanitize-url) = 4.0.0
+Provides: bundled(nodejs-@grafana/slate-react) = 0.22.9-grafana
+Provides: bundled(nodejs-@reduxjs/toolkit) = 1.2.1
+Provides: bundled(nodejs-@torkelo/react-select) = 3.0.8
+Provides: bundled(nodejs-@types/md5) = 2.1.33
+Provides: bundled(nodejs-@types/react-loadable) = 5.5.2
+Provides: bundled(nodejs-@types/react-virtualized-auto-sizer) = 1.0.0
+Provides: bundled(nodejs-@types/uuid) = 3.4.7
+Provides: bundled(nodejs-abortcontroller-polyfill) = 1.4.0
+Provides: bundled(nodejs-angular) = 1.6.9
+Provides: bundled(nodejs-angular-bindonce) = 0.3.1
+Provides: bundled(nodejs-angular-native-dragdrop) = 1.2.2
+Provides: bundled(nodejs-angular-route) = 1.6.6
+Provides: bundled(nodejs-angular-sanitize) = 1.6.6
+Provides: bundled(nodejs-baron) = 3.0.3
+Provides: bundled(nodejs-brace) = 0.10.0
+Provides: bundled(nodejs-calculate-size) = 1.1.1
+Provides: bundled(nodejs-classnames) = 2.2.6
+Provides: bundled(nodejs-clipboard) = 2.0.4
+Provides: bundled(nodejs-core-js) = 1.2.7
+Provides: bundled(nodejs-d3) = 5.15.0
+Provides: bundled(nodejs-d3-scale-chromatic) = 1.5.0
+Provides: bundled(nodejs-emotion) = 10.0.27
+Provides: bundled(nodejs-eventemitter3) = 2.0.3
+Provides: bundled(nodejs-fast-text-encoding) = 1.0.0
+Provides: bundled(nodejs-file-saver) = 1.3.8
+Provides: bundled(nodejs-hoist-non-react-statics) = 3.3.0
+Provides: bundled(nodejs-immutable) = 3.8.2
+Provides: bundled(nodejs-is-hotkey) = 0.1.4
+Provides: bundled(nodejs-jquery) = 3.4.1
+Provides: bundled(nodejs-lodash) = 3.10.1
+Provides: bundled(nodejs-lru-cache) = 4.1.5
+Provides: bundled(nodejs-marked) = 0.3.19
+Provides: bundled(nodejs-md5) = 2.2.1
+Provides: bundled(nodejs-memoize-one) = 4.1.0
+Provides: bundled(nodejs-moment) = 2.24.0
+Provides: bundled(nodejs-mousetrap) = 1.6.3
+Provides: bundled(nodejs-mousetrap-global-bind) = 1.1.0
+Provides: bundled(nodejs-nodemon) = 1.18.10
+Provides: bundled(nodejs-papaparse) = 4.6.3
+Provides: bundled(nodejs-prismjs) = 1.16.0
+Provides: bundled(nodejs-prop-types) = 15.7.2
+Provides: bundled(nodejs-rc-cascader) = 0.17.5
+Provides: bundled(nodejs-re-resizable) = 6.2.0
+Provides: bundled(nodejs-react) = 16.10.2
+Provides: bundled(nodejs-react-dom) = 16.10.2
+Provides: bundled(nodejs-react-grid-layout) = 0.17.1
+Provides: bundled(nodejs-react-highlight-words) = 0.11.0
+Provides: bundled(nodejs-react-loadable) = 5.5.0
+Provides: bundled(nodejs-react-popper) = 1.3.3
+Provides: bundled(nodejs-react-redux) = 7.1.1
+Provides: bundled(nodejs-react-sizeme) = 2.5.2
+Provides: bundled(nodejs-react-split-pane) = 0.1.89
+Provides: bundled(nodejs-react-transition-group) = 2.6.1
+Provides: bundled(nodejs-react-use) = 12.8.0
+Provides: bundled(nodejs-react-virtualized-auto-sizer) = 1.0.2
+Provides: bundled(nodejs-react-window) = 1.7.1
+Provides: bundled(nodejs-redux) = 3.7.2
+Provides: bundled(nodejs-redux-logger) = 3.0.6
+Provides: bundled(nodejs-redux-thunk) = 2.3.0
+Provides: bundled(nodejs-regenerator-runtime) = 0.11.1
+Provides: bundled(nodejs-reselect) = 4.0.0
+Provides: bundled(nodejs-rst2html) = 1.0.4
+Provides: bundled(nodejs-rxjs) = 5.5.12
+Provides: bundled(nodejs-search-query-parser) = 1.5.2
+Provides: bundled(nodejs-slate) = 0.47.8
+Provides: bundled(nodejs-slate-plain-serializer) = 0.7.10
+Provides: bundled(nodejs-tether) = 1.4.5
+Provides: bundled(nodejs-tether-drop) = 1.5.0
+Provides: bundled(nodejs-tinycolor2) = 1.4.1
+Provides: bundled(nodejs-tti-polyfill) = 0.2.2
+Provides: bundled(nodejs-uuid) = 3.3.3
+Provides: bundled(nodejs-whatwg-fetch) = 3.0.0
+Provides: bundled(nodejs-xss) = 1.0.3
 
 
 %description
@@ -396,7 +352,6 @@ The Grafana stackdriver datasource.
 %prep
 %setup -q -T -D -b 0
 %setup -q -T -D -b 1
-%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -432,11 +387,16 @@ cd %{_builddir}/src/github.com/grafana/grafana
 %global archbindir bin/`go env GOOS`-`go env GOARCH`
 echo _builddir=%{_builddir} archbindir=%{archbindir} gopath=%{gopath}
 [ ! -d %{archbindir} ] && mkdir -p %{archbindir}
+
 # non-modular build
 export GOPATH=%{_builddir}:%{gopath}
 export GO111MODULE=off; rm -f go.mod
-%gobuild -o %{archbindir}/grafana-cli ./pkg/cmd/grafana-cli
-%gobuild -o %{archbindir}/grafana-server ./pkg/cmd/grafana-server
+
+# see grafana-X.X.X/build.go
+export LDFLAGS="-X main.version=%{version} -X main.commit=%{commit} -X main.buildstamp=${SOURCE_DATE_EPOCH} -X main.buildBranch=master"
+for cmd in grafana-cli grafana-server; do
+    %gobuild -o %{archbindir}/${cmd} ./pkg/cmd/${cmd}
+done
 
 %install
 # Fix up arch bin directories
@@ -470,9 +430,9 @@ install -d %{buildroot}%{_sysconfdir}/%{name}
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 
 # config defaults
-install -p -m 644 conf/distro-defaults.ini \
+install -p -m 644 %{SOURCE3} \
     %{buildroot}%{_sysconfdir}/%{name}/grafana.ini
-install -p -m 644 conf/distro-defaults.ini \
+install -p -m 644 %{SOURCE3} \
     %{buildroot}%{_datadir}/%{name}/conf/defaults.ini
 install -p -m 644 conf/ldap.toml %{buildroot}%{_sysconfdir}/%{name}/ldap.toml
 install -p -m 644 packaging/rpm/sysconfig/grafana-server \
@@ -545,7 +505,6 @@ export GO111MODULE=off
 
 # shared directory and all files therein, except some datasources
 %{_datadir}/%{name}
-%{_datadir}/%{name}/public
 
 # built-in datasources that are sub-packaged
 %global dsdir %{_datadir}/%{name}/public/app/plugins/datasource
@@ -585,42 +544,58 @@ export GO111MODULE=off
 #
 %files cloudwatch
 %{_datadir}/%{name}/public/app/plugins/datasource/cloudwatch
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/cloudwatch/README.md
 
 %files elasticsearch
 %{_datadir}/%{name}/public/app/plugins/datasource/elasticsearch
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/elasticsearch/README.md
 
 %files azure-monitor
 %{_datadir}/%{name}/public/app/plugins/datasource/grafana-azure-monitor-datasource
 
 %files graphite
 %{_datadir}/%{name}/public/app/plugins/datasource/graphite
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/graphite/README.md
 
 %files influxdb
 %{_datadir}/%{name}/public/app/plugins/datasource/influxdb
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/influxdb/README.md
 
 %files loki
 %{_datadir}/%{name}/public/app/plugins/datasource/loki
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/loki/README.md
 
 %files mssql
 %{_datadir}/%{name}/public/app/plugins/datasource/mssql
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/mssql/README.md
 
 %files mysql
 %{_datadir}/%{name}/public/app/plugins/datasource/mysql
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/mysql/README.md
 
 %files opentsdb
 %{_datadir}/%{name}/public/app/plugins/datasource/opentsdb
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/opentsdb/README.md
 
 %files postgres
 %{_datadir}/%{name}/public/app/plugins/datasource/postgres
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/postgres/README.md
 
 %files prometheus
 %{_datadir}/%{name}/public/app/plugins/datasource/prometheus
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/prometheus/README.md
 
 %files stackdriver
 %{_datadir}/%{name}/public/app/plugins/datasource/stackdriver
+%doc %{_datadir}/%{name}/public/app/plugins/datasource/stackdriver/README.md
 
 
 %changelog
+* Thu Apr 23 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.2-1
+- update to 6.7.2 tagged upstream community sources, see CHANGELOG
+- set grafana version
+- add declare README.md as documentation of datasource plugins
+
 * Wed Feb 26 2020 Mark Goodwin <mgoodwin@redhat.com> 6.6.2-1
 - added patch0 to set the version string correctly
 - removed patch 004-xerrors.patch, it's now upstream

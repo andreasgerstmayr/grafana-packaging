@@ -9,5 +9,5 @@ index ae66aa1d1b..bfb95560fe 100644
 -	"github.com/unknwon/com"
 +	"github.com/Unknwon/com"
  
- 	m "github.com/grafana/grafana/pkg/models"
+ 	"github.com/grafana/grafana/pkg/models"
  	"github.com/grafana/grafana/pkg/setting"
