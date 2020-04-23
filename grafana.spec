@@ -15,8 +15,8 @@ end}
 %endif
 
 Name:             grafana
-Version:          6.7.2
-%global commit    423a25f
+Version:          6.7.3
+%global commit    a04ef6c
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -430,11 +430,9 @@ install -d %{buildroot}%{_sysconfdir}/%{name}
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 
 # config defaults
-install -p -m 644 %{SOURCE3} \
-    %{buildroot}%{_sysconfdir}/%{name}/grafana.ini
-install -p -m 644 %{SOURCE3} \
-    %{buildroot}%{_datadir}/%{name}/conf/defaults.ini
-install -p -m 644 conf/ldap.toml %{buildroot}%{_sysconfdir}/%{name}/ldap.toml
+install -p -m 640 %{SOURCE3} %{buildroot}%{_sysconfdir}/%{name}/grafana.ini
+install -p -m 640 conf/ldap.toml %{buildroot}%{_sysconfdir}/%{name}/ldap.toml
+install -p -m 644 %{SOURCE3} %{buildroot}%{_datadir}/%{name}/conf/defaults.ini
 install -p -m 644 packaging/rpm/sysconfig/grafana-server \
     %{buildroot}%{_sysconfdir}/sysconfig/grafana-server
 
@@ -442,6 +440,7 @@ install -p -m 644 packaging/rpm/sysconfig/grafana-server \
 install -d %{buildroot}%{_sharedstatedir}/%{name}
 install -d -m 755 %{buildroot}%{_sharedstatedir}/%{name}
 install -d -m 755 %{buildroot}%{_sharedstatedir}/%{name}/plugins
+touch %{buildroot}%{_sharedstatedir}/%{name}/grafana.db
 
 # log directory
 install -d %{buildroot}%{_localstatedir}/log/%{name}
@@ -492,16 +491,17 @@ export GO111MODULE=off
 
 # config files
 %dir %{_sysconfdir}/%{name}
-%config(noreplace) %attr(644, root, %{GRAFANA_GROUP}) %{_sysconfdir}/%{name}/grafana.ini
-%config(noreplace) %attr(644, root, %{GRAFANA_GROUP}) %{_sysconfdir}/%{name}/ldap.toml
+%config(noreplace) %attr(640, root, %{GRAFANA_GROUP}) %{_sysconfdir}/%{name}/grafana.ini
+%config(noreplace) %attr(640, root, %{GRAFANA_GROUP}) %{_sysconfdir}/%{name}/ldap.toml
 %config(noreplace) %{_sysconfdir}/sysconfig/grafana-server
 
 # Grafana configuration to dynamically create /run/grafana/grafana.pid on tmpfs
 %{_tmpfilesdir}/%{name}.conf
 
-# config database directory and plugins (actual db files are created by grafana-server)
+# config database directory and plugins
 %attr(-, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}
 %attr(-, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}/plugins
+%attr(640, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %{_sharedstatedir}/%{name}/grafana.db
 
 # shared directory and all files therein, except some datasources
 %{_datadir}/%{name}
@@ -591,10 +591,12 @@ export GO111MODULE=off
 
 
 %changelog
-* Thu Apr 23 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.2-1
-- update to 6.7.2 tagged upstream community sources, see CHANGELOG
-- set grafana version
+* Thu Apr 23 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.3-1
+- update to 6.7.3 tagged upstream community sources, see CHANGELOG
+- set grafana version in Grafana UI and grafana-cli --version
 - add declare README.md as documentation of datasource plugins
+- create grafana.db with sensible permissions (640, grafana:grafana)
+- change permissions of grafana.ini and ldap.toml to 640 (contains secret_key/bind_password)
 
 * Wed Feb 26 2020 Mark Goodwin <mgoodwin@redhat.com> 6.6.2-1
 - added patch0 to set the version string correctly
