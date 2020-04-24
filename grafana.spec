@@ -440,7 +440,6 @@ install -p -m 644 packaging/rpm/sysconfig/grafana-server \
 install -d %{buildroot}%{_sharedstatedir}/%{name}
 install -d -m 755 %{buildroot}%{_sharedstatedir}/%{name}
 install -d -m 755 %{buildroot}%{_sharedstatedir}/%{name}/plugins
-touch %{buildroot}%{_sharedstatedir}/%{name}/grafana.db
 
 # log directory
 install -d %{buildroot}%{_localstatedir}/log/%{name}
@@ -467,6 +466,16 @@ exit 0
 
 %post
 %systemd_post grafana-server.service
+# create grafana.db with secure permissions on new installations
+# otherwise grafana-server is creating grafana.db on first start
+# with world-readable permissions, which may leak encrypted datasource
+# passwords to all users (if the secret_key in grafana.ini was not changed)
+# also fixes https://bugzilla.redhat.com/show_bug.cgi?id=1805472
+if [ "$1" = 1 ] && [ ! -f %{_sharedstatedir}/%{name}/grafana.db ]; then
+    touch %{_sharedstatedir}/%{name}/grafana.db
+    chown %{GRAFANA_USER}:%{GRAFANA_GROUP} %{_sharedstatedir}/%{name}/grafana.db
+    chmod 640 %{_sharedstatedir}/%{name}/grafana.db
+fi
 
 %postun
 %systemd_postun_with_restart grafana-server.service
@@ -501,7 +510,6 @@ export GO111MODULE=off
 # config database directory and plugins
 %attr(-, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}
 %attr(-, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}/plugins
-%attr(640, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %{_sharedstatedir}/%{name}/grafana.db
 
 # shared directory and all files therein, except some datasources
 %{_datadir}/%{name}
