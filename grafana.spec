@@ -437,8 +437,7 @@ install -p -m 644 packaging/rpm/sysconfig/grafana-server \
     %{buildroot}%{_sysconfdir}/sysconfig/grafana-server
 
 # config database directory and plugins
-install -d %{buildroot}%{_sharedstatedir}/%{name}
-install -d -m 755 %{buildroot}%{_sharedstatedir}/%{name}
+install -d -m 750 %{buildroot}%{_sharedstatedir}/%{name}
 install -d -m 755 %{buildroot}%{_sharedstatedir}/%{name}/plugins
 
 # log directory
@@ -470,9 +469,15 @@ exit 0
 # otherwise grafana-server is creating grafana.db on first start
 # with world-readable permissions, which may leak encrypted datasource
 # passwords to all users (if the secret_key in grafana.ini was not changed)
-# also fixes https://bugzilla.redhat.com/show_bug.cgi?id=1805472
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1805472
 if [ "$1" = 1 ] && [ ! -f %{_sharedstatedir}/%{name}/grafana.db ]; then
     touch %{_sharedstatedir}/%{name}/grafana.db
+fi
+
+# apply secure permissions to grafana.db if it exists
+# (may not exist on upgrades, because users can choose between sqlite/mysql/postgres)
+if [ -f %{_sharedstatedir}/%{name}/grafana.db ]; then
     chown %{GRAFANA_USER}:%{GRAFANA_GROUP} %{_sharedstatedir}/%{name}/grafana.db
     chmod 640 %{_sharedstatedir}/%{name}/grafana.db
 fi
@@ -508,7 +513,7 @@ export GO111MODULE=off
 %{_tmpfilesdir}/%{name}.conf
 
 # config database directory and plugins
-%attr(-, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}
+%attr(750, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}
 %attr(-, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_sharedstatedir}/%{name}/plugins
 
 # shared directory and all files therein, except some datasources
@@ -602,9 +607,13 @@ export GO111MODULE=off
 * Thu Apr 23 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.3-1
 - update to 6.7.3 tagged upstream community sources, see CHANGELOG
 - set grafana version in Grafana UI and grafana-cli --version
-- add declare README.md as documentation of datasource plugins
-- create grafana.db with sensible permissions (640, grafana:grafana)
-- change permissions of grafana.ini and ldap.toml to 640 (contains secret_key/bind_password)
+- declare README.md as documentation of datasource plugins
+- create grafana.db on first installation (fixes RH BZ #1805472)
+- change permissions of /var/lib/grafana to 750
+- change permissions of /var/lib/grafana/grafana.db to 640 and
+  user/group grafana:grafana
+- change permissions of grafana.ini and ldap.toml to 640
+  (contains secret_key/bind_password)
 
 * Wed Feb 26 2020 Mark Goodwin <mgoodwin@redhat.com> 6.6.2-1
 - added patch0 to set the version string correctly
