@@ -4,7 +4,7 @@ The grafana package
 ## Upgrade instructions
 (replace X.Y.Z with the new Grafana version)
 
-* update `Version`, `commit` and `%changelog` in the specfile
+* update `Version` and `%changelog` in the specfile
 * download source tarball and create webpack: `./make_grafana_webpack.sh X.Y.Z`
 * update golang buildrequires: `./scripts/list_go_buildrequires.sh grafana-X.Y.Z` and replace the old golang `BuildRequires:` with the new ones
 * update nodejs provides: `./scripts/list_bundled_nodejs_packages.py grafana-X.Y.Z` and replace the old nodejs `Provides:` with the new ones

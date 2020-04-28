@@ -16,7 +16,6 @@ end}
 
 Name:             grafana
 Version:          6.7.3
-%global commit    a04ef6c
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -393,7 +392,7 @@ export GOPATH=%{_builddir}:%{gopath}
 export GO111MODULE=off; rm -f go.mod
 
 # see grafana-X.X.X/build.go
-export LDFLAGS="-X main.version=%{version} -X main.commit=%{commit} -X main.buildstamp=${SOURCE_DATE_EPOCH} -X main.buildBranch=master"
+export LDFLAGS="-X main.version=%{version} -X main.buildstamp=${SOURCE_DATE_EPOCH}"
 for cmd in grafana-cli grafana-server; do
     %gobuild -o %{archbindir}/${cmd} ./pkg/cmd/${cmd}
 done
@@ -604,9 +603,10 @@ export GO111MODULE=off
 
 
 %changelog
-* Thu Apr 23 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.3-1
+* Tue Apr 28 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.3-1
 - update to 6.7.3 tagged upstream community sources, see CHANGELOG
-- set grafana version in Grafana UI and grafana-cli --version
+- add scripts to list Go dependencies and bundled npmjs dependencies
+- set Grafana version in Grafana UI and grafana-cli --version
 - declare README.md as documentation of datasource plugins
 - create grafana.db on first installation (fixes RH BZ #1805472)
 - change permissions of /var/lib/grafana to 750
