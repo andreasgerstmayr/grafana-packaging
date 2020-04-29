@@ -27,11 +27,18 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 # Source1 contains the front-end javascript modules bundled into a webpack
 Source1:          grafana_webpack-%{version}.tar.gz
 
-# Source2 is the script to create the above webpack from grafana sources
-Source2:          make_grafana_webpack.sh
+# Source2 contains Grafana configuration defaults for distributions
+Source2:          distro-defaults.ini
 
-# Source3 contains Grafana configuration defaults for distributions
-Source3:          distro-defaults.ini
+# Source3 is the script to create the webpack from grafana sources
+Source3:          make_grafana_webpack.sh
+
+# Source4 is the script to generate the list of Go build dependencies:
+Source4:          list_go_buildrequires.sh
+
+# Source5 is the script to generate the list of bundled nodejs packages
+Source5:          list_bundled_nodejs_packages.py
+
 
 # Patches
 Patch1:           001-login-oauth-use-oauth2-exchange.patch
@@ -59,7 +66,7 @@ ExclusiveArch:    %{grafana_arches}
 %{?systemd_requires}
 Requires(pre):    shadow-utils
 
-BuildRequires:    git, systemd, golang, go-srpm-macros go-rpm-macros
+BuildRequires:    git, systemd, golang, go-srpm-macros, go-rpm-macros
 
 Recommends: grafana-cloudwatch = %{version}-%{release}
 Recommends: grafana-elasticsearch = %{version}-%{release}
@@ -355,11 +362,14 @@ The Grafana stackdriver datasource.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
 %patch6 -p1
+
+%if 0%{?unbundle_vendor_sources}
+%patch5 -p1
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%endif
 
 # Set up build subdirs and links
 mkdir -p %{_builddir}/src/github.com/grafana
@@ -429,9 +439,9 @@ install -d %{buildroot}%{_sysconfdir}/%{name}
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 
 # config defaults
-install -p -m 640 %{SOURCE3} %{buildroot}%{_sysconfdir}/%{name}/grafana.ini
+install -p -m 640 %{SOURCE2} %{buildroot}%{_sysconfdir}/%{name}/grafana.ini
 install -p -m 640 conf/ldap.toml %{buildroot}%{_sysconfdir}/%{name}/ldap.toml
-install -p -m 644 %{SOURCE3} %{buildroot}%{_datadir}/%{name}/conf/defaults.ini
+install -p -m 644 %{SOURCE2} %{buildroot}%{_datadir}/%{name}/conf/defaults.ini
 install -p -m 644 packaging/rpm/sysconfig/grafana-server \
     %{buildroot}%{_sysconfdir}/sysconfig/grafana-server
 
@@ -480,6 +490,10 @@ if [ -f %{_sharedstatedir}/%{name}/grafana.db ]; then
     chown %{GRAFANA_USER}:%{GRAFANA_GROUP} %{_sharedstatedir}/%{name}/grafana.db
     chmod 640 %{_sharedstatedir}/%{name}/grafana.db
 fi
+
+# required for upgrades
+chmod 640 %{_sysconfdir}/%{name}/grafana.ini
+chmod 640 %{_sysconfdir}/%{name}/ldap.toml
 
 %postun
 %systemd_postun_with_restart grafana-server.service
@@ -609,11 +623,10 @@ export GO111MODULE=off
 - set Grafana version in Grafana UI and grafana-cli --version
 - declare README.md as documentation of datasource plugins
 - create grafana.db on first installation (fixes RH BZ #1805472)
-- change permissions of /var/lib/grafana to 750
+- change permissions of /var/lib/grafana to 750 (CVE-2020-12458)
 - change permissions of /var/lib/grafana/grafana.db to 640 and
-  user/group grafana:grafana
-- change permissions of grafana.ini and ldap.toml to 640
-  (contains secret_key/bind_password)
+  user/group grafana:grafana (CVE-2020-12458)
+- change permissions of grafana.ini and ldap.toml to 640 (CVE-2020-12459)
 
 * Wed Feb 26 2020 Mark Goodwin <mgoodwin@redhat.com> 6.6.2-1
 - added patch0 to set the version string correctly
