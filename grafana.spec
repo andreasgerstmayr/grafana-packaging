@@ -15,7 +15,7 @@ end}
 %endif
 
 Name:             grafana
-Version:          6.7.3
+Version:          6.7.4
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -619,6 +619,10 @@ export GO111MODULE=off
 
 
 %changelog
+* Fri Jun 05 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.4-1
+- update to 6.7.4 tagged upstream community sources, see CHANGELOG
+- security fix for CVE-2020-13379
+
 * Tue Apr 28 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.3-1
 - update to 6.7.3 tagged upstream community sources, see CHANGELOG
 - add scripts to list Go dependencies and bundled npmjs dependencies
