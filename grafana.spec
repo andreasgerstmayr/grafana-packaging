@@ -16,7 +16,7 @@ end}
 
 Name:             grafana
 Version:          6.7.4
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -619,6 +619,9 @@ export GO111MODULE=off
 
 
 %changelog
+* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 6.7.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Fri Jun 05 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 6.7.4-1
 - update to 6.7.4 tagged upstream community sources, see CHANGELOG
 - security fix for CVE-2020-13379
