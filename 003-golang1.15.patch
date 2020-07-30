@@ -1,0 +1,85 @@
+diff --git a/pkg/api/dashboard_test.go b/pkg/api/dashboard_test.go
+index b58cf217d3..90e110974e 100644
+--- a/pkg/api/dashboard_test.go
++++ b/pkg/api/dashboard_test.go
+@@ -3,6 +3,7 @@ package api
+ import (
+ 	"encoding/json"
+ 	"fmt"
++	"strconv"
+ 	"io/ioutil"
+ 	"testing"
+ 
+@@ -828,7 +829,7 @@ func TestDashboardApiEndpoint(t *testing.T) {
+ 		bus.AddHandler("test", func(query *models.GetDashboardVersionQuery) error {
+ 			query.Result = &models.DashboardVersion{
+ 				Data: simplejson.NewFromAny(map[string]interface{}{
+-					"title": "Dash" + string(query.DashboardId),
++					"title": "Dash" + strconv.FormatInt(query.DashboardId, 10),
+ 				}),
+ 			}
+ 			return nil
+diff --git a/pkg/components/gtime/gtime_test.go b/pkg/components/gtime/gtime_test.go
+index 4dab30fbf6..e4ba096a43 100644
+--- a/pkg/components/gtime/gtime_test.go
++++ b/pkg/components/gtime/gtime_test.go
+@@ -22,7 +22,7 @@ func TestParseInterval(t *testing.T) {
+ 		{interval: "1M", duration: now.Sub(now.AddDate(0, -1, 0))},
+ 		{interval: "1y", duration: now.Sub(now.AddDate(-1, 0, 0))},
+ 		{interval: "5y", duration: now.Sub(now.AddDate(-5, 0, 0))},
+-		{interval: "invalid-duration", err: "time: invalid duration invalid-duration"},
++		{interval: "invalid-duration", err: "time: invalid duration \"invalid-duration\""},
+ 	}
+ 
+ 	for i, tc := range tcs {
+diff --git a/pkg/services/sqlstore/alert_notification_test.go b/pkg/services/sqlstore/alert_notification_test.go
+index 75d5582022..4986d0d781 100644
+--- a/pkg/services/sqlstore/alert_notification_test.go
++++ b/pkg/services/sqlstore/alert_notification_test.go
+@@ -168,7 +168,7 @@ func TestAlertNotificationSQLAccess(t *testing.T) {
+ 				cmd.Frequency = "invalid duration"
+ 
+ 				err := CreateAlertNotificationCommand(cmd)
+-				So(err.Error(), ShouldEqual, "time: invalid duration invalid duration")
++				So(err.Error(), ShouldEqual, "time: invalid duration \"invalid duration\"")
+ 			})
+ 		})
+ 
+@@ -199,7 +199,7 @@ func TestAlertNotificationSQLAccess(t *testing.T) {
+ 
+ 				err := UpdateAlertNotification(updateCmd)
+ 				So(err, ShouldNotBeNil)
+-				So(err.Error(), ShouldEqual, "time: invalid duration invalid duration")
++				So(err.Error(), ShouldEqual, "time: invalid duration \"invalid duration\"")
+ 			})
+ 		})
+ 
+diff --git a/pkg/services/sqlstore/sqlbuilder_test.go b/pkg/services/sqlstore/sqlbuilder_test.go
+index 42159171b0..abf669d294 100644
+--- a/pkg/services/sqlstore/sqlbuilder_test.go
++++ b/pkg/services/sqlstore/sqlbuilder_test.go
+@@ -5,6 +5,7 @@ import (
+ 	"math/rand"
+ 	"testing"
+ 	"time"
++	"strconv"
+ 
+ 	"github.com/grafana/grafana/pkg/components/simplejson"
+ 	"github.com/grafana/grafana/pkg/models"
+@@ -193,12 +194,12 @@ func test(t *testing.T, dashboardProps DashboardProps, dashboardPermission *Dash
+ func createDummyUser() (*models.User, error) {
+ 	uid := rand.Intn(9999999)
+ 	createUserCmd := &models.CreateUserCommand{
+-		Email:          string(uid) + "@example.com",
+-		Login:          string(uid),
+-		Name:           string(uid),
++		Email:          strconv.Itoa(uid) + "@example.com",
++		Login:          strconv.Itoa(uid),
++		Name:           strconv.Itoa(uid),
+ 		Company:        "",
+ 		OrgName:        "",
+-		Password:       string(uid),
++		Password:       strconv.Itoa(uid),
+ 		EmailVerified:  true,
+ 		IsAdmin:        false,
+ 		SkipOrgSetup:   false,

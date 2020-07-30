@@ -16,7 +16,7 @@ RUN mkdir /grafana /deps
 
 ${INSTALL_UNPUBLISHED_DEPENDENCIES}
 
-COPY grafana.spec *.patch grafana-*.tar.gz grafana_webpack-*.tar.gz make_grafana_webpack.sh distro-defaults.ini /grafana
+COPY grafana.spec *.patch grafana-*.tar.gz distro-defaults.ini Makefile create_webpack_manifest.py /grafana
 WORKDIR /grafana
 RUN dnf -y builddep grafana.spec
 RUN rpkg local

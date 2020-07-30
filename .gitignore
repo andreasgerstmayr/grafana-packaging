@@ -1,2 +1,3 @@
 /grafana-*.tar.gz
-/grafana_webpack-*.tar.gz
+/grafana-*.tar.gz.manifest
+/grafana-*/
