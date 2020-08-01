@@ -10,7 +10,7 @@ end}
 
 Name:             grafana
 Version:          7.1.1
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -418,6 +418,10 @@ rm -f pkg/services/provisioning/dashboards/file_reader_test.go
 
 
 %changelog
+* Sat Aug 01 2020 Fedora Release Engineering <releng@fedoraproject.org> - 7.1.1-2
+- Second attempt - Rebuilt for
+  https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Thu Jul 30 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 7.1.1-1
 - update to 7.1.1 tagged upstream community sources, see CHANGELOG
 - merge all datasources into main grafana package
