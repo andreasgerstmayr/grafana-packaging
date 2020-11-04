@@ -8,7 +8,7 @@ from packaging import version
 def read_declared_pkgs(package_json_path):
     with open(package_json_path) as f:
         package_json = json.load(f)
-        return list(package_json['dependencies'].keys())
+        return list(package_json['dependencies'].keys()) + list(package_json['devDependencies'].keys())
 
 
 def read_installed_pkgs(yarn_lock_path):
@@ -28,7 +28,7 @@ def list_provides(declared_pkgs, installed_pkgs):
         versions = [version.parse(pkg_version)
                     for pkg_name, pkg_version in installed_pkgs if pkg_name == declared_pkg]
         oldest_version = sorted(versions)[0]
-        yield f"Provides: bundled(nodejs-{declared_pkg}) = {oldest_version}"
+        yield f"Provides: bundled(npm({declared_pkg})) = {oldest_version}"
 
 
 if __name__ == "__main__":

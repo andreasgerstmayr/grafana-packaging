@@ -1,10 +1,10 @@
 diff --git a/docs/man/man1/grafana-cli.1 b/docs/man/man1/grafana-cli.1
 new file mode 100644
-index 0000000000..171748fcda
+index 0000000000..7ac2af882c
 --- /dev/null
 +++ b/docs/man/man1/grafana-cli.1
-@@ -0,0 +1,51 @@
-+.TH GRAFANA "1" "February 2019" "Grafana cli version 5.4.3" "User Commands"
+@@ -0,0 +1,60 @@
++.TH GRAFANA "1" "November 2020" "Grafana cli version 7.3.1" "User Commands"
 +.SH NAME
 +grafana-cli \- command line administration for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -41,6 +41,15 @@ index 0000000000..171748fcda
 +\fB\-\-debug\fR, \fB\-d\fR
 +enable debug logging
 +.TP
++\fB\-\-configOverrides\fR value
++Configuration options to override defaults as a string. e.g. cfg:default.paths.log=/dev/null
++.TP
++\fB\-\-homepath\fR value
++Path to Grafana install/home path, defaults to working directory
++.TP
++\fB\-\-config\fR value
++Path to config file
++.TP
 +\fB\-\-help\fR, \fB\-h\fR
 +show help
 +.TP
@@ -57,11 +66,11 @@ index 0000000000..171748fcda
 +.BR http://docs.grafana.org/ .
 diff --git a/docs/man/man1/grafana-server.1 b/docs/man/man1/grafana-server.1
 new file mode 100644
-index 0000000000..30b7c1306f
+index 0000000000..c616268b31
 --- /dev/null
 +++ b/docs/man/man1/grafana-server.1
-@@ -0,0 +1,156 @@
-+.TH VERSION "1" "February 2019" "Version 5.4.3" "User Commands"
+@@ -0,0 +1,84 @@
++.TH VERSION "1" "November 2020" "Version 7.3.1" "User Commands"
 +.SH NAME
 +grafana-server \- back-end server for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -90,13 +99,24 @@ index 0000000000..30b7c1306f
 +.BR /etc/grafana/grafana.ini
 +and is well documented with comments.
 +The command-line options listed below override options of
-+the same (or similar) name in the configuration file and also provide
-+additional options for testing Grafana.
++the same (or similar) name in the configuration file.
 +.P
 +.HP
 +\fB\-config\fR string
 +.IP
 +path to config file
++.HP
++\fB\-convey-json\fR
++.IP
++When true, emits results in JSON blocks. Default: 'false'
++.HP
++\fB\-convey-silent\fR
++.IP
++When true, all output from GoConvey is suppressed.
++.HP
++\fB\-convey-story\fR
++.IP
++When true, emits story output, otherwise emits dot output. When not provided, this flag mirrors the value of the '-test.v' flag
 +.HP
 +\fB\-homepath\fR string
 +.IP
@@ -114,103 +134,20 @@ index 0000000000..30b7c1306f
 +.IP
 +Turn on pprof profiling
 +.HP
-+\fB\-profile\-port\fR int
++\fB\-profile\-port\fR uint
 +.IP
 +Define custom port for profiling (default 6060)
 +.HP
-+\fB\-test\fR.bench regexp
++\fB\-tracing\fR
 +.IP
-+run only benchmarks matching regexp
++Turn on tracing
 +.HP
-+\fB\-test\fR.benchmem
++\fB\-tracing\-file\fR string
 +.IP
-+print memory allocations for benchmarks
-+.HP
-+\fB\-test\fR.benchtime d
-+.IP
-+run each benchmark for duration d (default 1s)
-+.HP
-+\fB\-test\fR.blockprofile file
-+.IP
-+write a goroutine blocking profile to file
-+.HP
-+\fB\-test\fR.blockprofilerate rate
-+.IP
-+set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
-+.HP
-+\fB\-test\fR.count n
-+.IP
-+run tests and benchmarks n times (default 1)
-+.HP
-+\fB\-test\fR.coverprofile file
-+.IP
-+write a coverage profile to file
-+.HP
-+\fB\-test\fR.cpu list
-+.IP
-+comma\-separated list of cpu counts to run each test with
-+.HP
-+\fB\-test\fR.cpuprofile file
-+.IP
-+write a cpu profile to file
-+.HP
-+\fB\-test\fR.failfast
-+.IP
-+do not start new tests after the first test failure
-+.HP
-+\fB\-test\fR.list regexp
-+.IP
-+list tests, examples, and benchmarks matching regexp then exit
-+.HP
-+\fB\-test\fR.memprofile file
-+.IP
-+write a memory profile to file
-+.HP
-+\fB\-test\fR.memprofilerate rate
-+.IP
-+set memory profiling rate (see runtime.MemProfileRate)
-+.HP
-+\fB\-test\fR.mutexprofile string
-+.IP
-+write a mutex contention profile to the named file after execution
-+.HP
-+\fB\-test\fR.mutexprofilefraction int
-+.IP
-+if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
-+.HP
-+\fB\-test\fR.outputdir dir
-+.IP
-+write profiles to dir
-+.HP
-+\fB\-test\fR.parallel n
-+.IP
-+run at most n tests in parallel (default 8)
-+.HP
-+\fB\-test\fR.run regexp
-+.IP
-+run only tests and examples matching regexp
-+.HP
-+\fB\-test\fR.short
-+.IP
-+run smaller test suite to save time
-+.HP
-+\fB\-test\fR.testlogfile file
-+.IP
-+write test action log to file (for use only by cmd/go)
-+.HP
-+\fB\-test\fR.timeout d
-+.IP
-+panic test binary after duration d (default 0, timeout disabled)
-+.HP
-+\fB\-test\fR.trace file
-+.IP
-+write an execution trace to file
-+.HP
-+\fB\-test\fR.v
-+.IP
-+verbose: print additional output
++Define tracing output file (default "trace.out")
 +.TP
 +\fB\-v\fR
++.IP
 +prints current version and exits
 +.SH "SEE ALSO"
 +The full documentation for
