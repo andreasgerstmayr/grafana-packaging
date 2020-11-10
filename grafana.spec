@@ -13,13 +13,8 @@ end}
 %define compile_frontend 0
 
 Name:             grafana
-<<<<<<< HEAD
-Version:          7.1.1
-Release:          2%{?dist}
-=======
 Version:          7.3.1
 Release:          1%{?dist}
->>>>>>> 84a264d... update to upstream version 7.3.1, resolve RHBZ #1843170
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org

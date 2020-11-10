@@ -12,7 +12,7 @@ The grafana package
 * run rpm linter: `rpkg lint -r grafana.rpmlintrc`
 * run local builds with different OS versions: `./run_container_build.sh fedora-version`
 * run a scratch build: `fedpkg scratch-build --srpm`
-* upload new source tarballs: `fedpkg new-sources grafana-X.Y.Z.tar.gz grafana-vendor-X.Y.Z.tar.gz`
+* upload new source tarballs: `fedpkg new-sources *.tar.gz`
 
 ## Backporting
 * create the patch
