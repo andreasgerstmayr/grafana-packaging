@@ -4,9 +4,9 @@ The grafana package
 ## Upgrade instructions
 (replace X.Y.Z with the new Grafana version)
 
-* update `Version` and `%changelog` in the specfile
-* create bundles and manifests: `VER=X.Y.Z make clean all`
-* update specfile with contents of the `*.manifest` files
+* update `Version`, `Release` and `%changelog` in the specfile
+* create bundles and manifest: `VER=X.Y.Z make clean all`
+* update specfile with contents of the `.manifest` file
 * check if the default configuration has changed: `diff grafana-X.Y.Z/conf/defaults.ini distro-defaults.ini` and update `distro-defaults.ini` if necessary
 * run local build: `rpkg local`
 * run rpm linter: `rpkg lint -r grafana.rpmlintrc`
@@ -19,6 +19,6 @@ The grafana package
 * declare and apply (`%prep`) the patch in the specfile
 * if the patch affects Go or Node.js dependencies, or the webpack
   * create new tarballs and rename them to `grafana-...-X.Y.Z-R.tar.gz`
-  * update the specfile
+  * update the specfile with new tarball path and contents of the `.manifest` file
 
 Note: the Makefile automatically applies all patches before creating the tarballs

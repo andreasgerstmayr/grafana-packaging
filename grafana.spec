@@ -13,7 +13,7 @@ end}
 %define compile_frontend 0
 
 Name:             grafana
-Version:          7.3.1
+Version:          7.3.4
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -22,13 +22,10 @@ URL:              https://grafana.org
 # Source0 contains the tagged upstream sources
 Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}-%{version}.tar.gz
 
-# Source1 contains the bundled Go dependencies
-Source1:          grafana-vendor-go-%{version}.tar.gz
+# Source1 contains the bundled Go and Node.js dependencies
+Source1:          grafana-vendor-%{version}.tar.xz
 
-%if %{compile_frontend}
-# Source2 contains the bundled Node.js dependencies
-Source2:          grafana-vendor-nodejs-%{version}.tar.gz
-%else
+%if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
 Source2:          grafana-webpack-%{version}.tar.gz
 %endif
@@ -36,11 +33,11 @@ Source2:          grafana-webpack-%{version}.tar.gz
 # Source3 contains Grafana configuration defaults for distributions
 Source3:          distro-defaults.ini
 
-# Source4 contains the script to build the frontend
-Source4:          build_frontend.sh
+# Source4 contains the Makefile to create the required bundles
+Source4:          Makefile
 
-# Source5 contains the Makefile to create the required bundles
-Source5:          Makefile
+# Source5 contains the script to build the frontend
+Source5:          build_frontend.sh
 
 # Source6 contains the script to generate the list of bundled nodejs packages
 Source6:          list_bundled_nodejs_packages.py
@@ -62,6 +59,14 @@ Patch4:           004-skip-x86-goldenfiles-tests.patch
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
 
+BuildRequires:    git, systemd, golang, go-srpm-macros
+%if 0%{?fedora}
+BuildRequires:    go-rpm-macros
+%endif
+%if %{compile_frontend}
+BuildRequires:    nodejs >= 1:12, nodejs < 1:13, yarnpkg
+%endif
+
 # omit golang debugsource, see BZ995136 and related
 %global           dwz_low_mem_die_limit 0
 %global           _debugsource_template %{nil}
@@ -74,9 +79,8 @@ ExclusiveArch:    %{grafana_arches}
 %{?systemd_requires}
 Requires(pre):    shadow-utils
 
-BuildRequires:    git, systemd, golang, go-srpm-macros, go-rpm-macros
-%if %{compile_frontend}
-BuildRequires:    nodejs >= 1:12, nodejs < 1:13, yarnpkg
+%if 0%{?fedora} || 0%{?rhel} > 7
+Recommends: grafana-pcp
 %endif
 
 Obsoletes:        grafana-cloudwatch < 7.1.1-1
@@ -103,10 +107,6 @@ Provides:         grafana-opentsdb = 7.1.1-1
 Provides:         grafana-postgres = 7.1.1-1
 Provides:         grafana-prometheus = 7.1.1-1
 Provides:         grafana-stackdriver = 7.1.1-1
-
-%if 0%{?fedora} || 0%{?rhel} > 7
-Recommends: grafana-pcp
-%endif
 
 # vendored golang and node.js build dependencies
 # this is for security purposes, if nodejs-foo ever needs an update,
@@ -136,14 +136,14 @@ Provides: bundled(golang(github.com/golang/protobuf)) = 1.4.2
 Provides: bundled(golang(github.com/google/go-cmp)) = 0.5.0
 Provides: bundled(golang(github.com/gosimple/slug)) = 1.4.2
 Provides: bundled(golang(github.com/grafana/grafana-plugin-model)) = 0.0.0-20190930120109.1fc953a61fb4
-Provides: bundled(golang(github.com/grafana/grafana-plugin-sdk-go)) = 0.78.0
+Provides: bundled(golang(github.com/grafana/grafana-plugin-sdk-go)) = 0.79.0
 Provides: bundled(golang(github.com/grafana/loki)) = 1.6.0
 Provides: bundled(golang(github.com/grpc-ecosystem/go-grpc-middleware)) = 1.2.1
 Provides: bundled(golang(github.com/hashicorp/go-hclog)) = 0.12.2
 Provides: bundled(golang(github.com/hashicorp/go-plugin)) = 1.2.2
 Provides: bundled(golang(github.com/hashicorp/go-version)) = 1.2.0
 Provides: bundled(golang(github.com/inconshreveable/log15)) = 0.0.0-20180818164646.67afb5ed74ec
-Provides: bundled(golang(github.com/influxdata/influxdb-client-go/v2)) = 2.0.1
+Provides: bundled(golang(github.com/influxdata/influxdb-client-go/v2)) = 2.2.0
 Provides: bundled(golang(github.com/jmespath/go-jmespath)) = 0.3.0
 Provides: bundled(golang(github.com/jung-kurt/gofpdf)) = 1.10.1
 Provides: bundled(golang(github.com/lib/pq)) = 1.3.0
@@ -184,7 +184,6 @@ Provides: bundled(golang(gopkg.in/square/go-jose.v2)) = 2.4.1
 Provides: bundled(golang(gopkg.in/yaml.v2)) = 2.3.0
 Provides: bundled(golang(xorm.io/core)) = 0.7.3
 Provides: bundled(golang(xorm.io/xorm)) = 0.8.1
-
 Provides: bundled(npm(@babel/core)) = 7.6.2
 Provides: bundled(npm(@babel/plugin-proposal-nullish-coalescing-operator)) = 7.8.3
 Provides: bundled(npm(@babel/plugin-proposal-optional-chaining)) = 7.8.3
@@ -425,8 +424,8 @@ Graphite, InfluxDB & OpenTSDB.
 # remove bundled plugins source, otherwise they'll get merged
 # with the compiled bundled plugins when extracting the webpack
 rm -r plugins-bundled
-%endif
 %setup -q -T -D -b 2
+%endif
 
 %patch1 -p1
 %patch2 -p1
@@ -444,7 +443,7 @@ ln -s %{_builddir}/%{name}-%{version} \
 %build
 # Build the frontend
 %if %{compile_frontend}
-%{SOURCE4}
+%{SOURCE5}
 %endif
 
 # Build the backend
@@ -457,8 +456,8 @@ for cmd in grafana-cli grafana-server; do
     %gobuild -o %{_builddir}/bin/${cmd} ./pkg/cmd/${cmd}
 done
 
-%install
 
+%install
 # dirs, shared files, public html, webpack
 install -d %{buildroot}%{_sbindir}
 install -d %{buildroot}%{_datadir}/%{name}
@@ -547,12 +546,12 @@ chmod 640 %{_sysconfdir}/%{name}/ldap.toml
 
 
 %check
-# Frontend tests
+# Test frontend
 %if %{compile_frontend}
 yarn test
 %endif
 
-# Backend tests
+# Test backend
 cd %{_builddir}/src/github.com/grafana/grafana
 export GOPATH=%{_builddir}
 
@@ -609,6 +608,9 @@ export TZ=GMT
 
 
 %changelog
+* Wed Nov 25 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 7.3.4-1
+- update to 7.3.4 tagged upstream community sources, see CHANGELOG
+
 * Tue Nov 10 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 7.3.1-1
 - update to 7.3.1 tagged upstream community sources, see CHANGELOG
 - optionally bundle node.js dependencies and build and test frontend as part of the specfile

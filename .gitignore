@@ -1,4 +1,5 @@
 /grafana-*.tar.gz
-/grafana-*.tar.gz.manifest
+/grafana-*.tar.xz
+/grafana-*.tar.xz.manifest
 /grafana-*/
 *.rpm

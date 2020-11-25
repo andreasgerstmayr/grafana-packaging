@@ -33,12 +33,12 @@ def list_provides(declared_pkgs, installed_pkgs):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print(f"usage: {sys.argv[0]} grafana-X.Y.Z/", file=sys.stdout)
+        print(f"usage: {sys.argv[0]} package-X.Y.Z/", file=sys.stdout)
         sys.exit(1)
 
-    grafana_dir = sys.argv[1]
-    declared_pkgs = read_declared_pkgs(f"{grafana_dir}/package.json")
-    installed_pkgs = read_installed_pkgs(f"{grafana_dir}/yarn.lock")
+    package_dir = sys.argv[1]
+    declared_pkgs = read_declared_pkgs(f"{package_dir}/package.json")
+    installed_pkgs = read_installed_pkgs(f"{package_dir}/yarn.lock")
     provides = list_provides(declared_pkgs, installed_pkgs)
     for provide in sorted(provides):
         print(provide)
