@@ -1,0 +1,39 @@
+diff --git a/go.mod b/go.mod
+index bb073996ac..c1b6c3219c 100644
+--- a/go.mod
++++ b/go.mod
+@@ -19,7 +19,6 @@ require (
+ 	github.com/benbjohnson/clock v0.0.0-20161215174838-7dc76406b6d3
+ 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
+ 	github.com/centrifugal/centrifuge v0.11.0
+-	github.com/crewjam/saml v0.4.4-0.20201214083806-0dd2422c212e
+ 	github.com/davecgh/go-spew v1.1.1
+ 	github.com/denisenkom/go-mssqldb v0.0.0-20200620013148-b91950f658ec
+ 	github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51 // indirect
+diff --git a/go.sum b/go.sum
+index c79d983b88..f45fa68f41 100644
+--- a/go.sum
++++ b/go.sum
+@@ -228,10 +228,6 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d h1:U+s90UTSY
+ github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
+ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=
+ github.com/crewjam/httperr v0.0.0-20190612203328-a946449404da/go.mod h1:+rmNIXRvYMqLQeR4DHyTvs6y0MEMymTz4vyFpFkKTPs=
+-github.com/crewjam/saml v0.4.1 h1:ZNSRJvdbypQDY2uApMngeIHNcxS6UCRAgiw3S+pmgRU=
+-github.com/crewjam/saml v0.4.1/go.mod h1:vHcshzXm2WkPOV1dcToZa99cCB1h3nPiKLtLYK+erBE=
+-github.com/crewjam/saml v0.4.4-0.20201214083806-0dd2422c212e h1:CFIpybPh+vrxRD6R3t2BCV9hdtlOQudsj1vB1ECXOo4=
+-github.com/crewjam/saml v0.4.4-0.20201214083806-0dd2422c212e/go.mod h1:qCJQpUtZte9R1ZjUBcW8qtCNlinbO363ooNl02S68bk=
+ github.com/cupcake/rdb v0.0.0-20161107195141-43ba34106c76/go.mod h1:vYwsqCOLxGiisLwp9rITslkFNpZD5rz43tf41QFkTWY=
+ github.com/cyberdelia/templates v0.0.0-20141128023046-ca7fffd4298c/go.mod h1:GyV+0YP4qX0UQ7r2MoYZ+AvYDp12OF5yg4q8rGnyNh4=
+ github.com/cznic/b v0.0.0-20180115125044-35e9bbe41f07/go.mod h1:URriBxXwVq5ijiJ12C7iIZqlA69nTlI+LgI6/pwftG8=
+diff --git a/pkg/extensions/main.go b/pkg/extensions/main.go
+index 337f6566f8..b15c3f907b 100644
+--- a/pkg/extensions/main.go
++++ b/pkg/extensions/main.go
+@@ -5,7 +5,6 @@ import (
+ 	// remove the cron (v1) dependency
+ 
+ 	_ "github.com/beevik/etree"
+-	_ "github.com/crewjam/saml"
+ 	_ "github.com/gobwas/glob"
+ 	"github.com/grafana/grafana/pkg/registry"
+ 	"github.com/grafana/grafana/pkg/services/licensing"
