@@ -32,14 +32,16 @@ index 9cad151c0d..a786edc596 100755
  if [ -f "$DEFAULT" ]; then
    . "$DEFAULT"
  fi
-@@ -36,4 +38,11 @@ OPTS="--homepath=${GRAFANA_HOME} \
+@@ -36,4 +38,13 @@ OPTS="--homepath=${GRAFANA_HOME} \
                          cfg:default.paths.logs=${LOG_DIR} \
                          cfg:default.paths.plugins=${PLUGINS_DIR}'"
  
 -eval $EXECUTABLE "$OPTS" "$@"
 +if [ "$(id -u)" -eq 0 ]; then
++  cd "${GRAFANA_HOME}"
 +  exec runuser -u "${GRAFANA_USER}" -- "$EXECUTABLE" "$OPTS" "$@"
 +elif [ "$(id -u -n)" = "${GRAFANA_USER}" ]; then
++  cd "${GRAFANA_HOME}"
 +  exec "$EXECUTABLE" "$OPTS" "$@"
 +else
 +  echo "Please run this script as user \"${GRAFANA_USER}\" or root."

@@ -23,7 +23,7 @@ end}
 
 Name:             grafana
 Version:          7.3.6
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -623,6 +623,10 @@ export TZ=GMT
 
 
 %changelog
+* Fri Jan 22 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.3.6-2
+- change working dir to $GRAFANA_HOME in grafana-cli wrapper (fixes Red Hat BZ #1916083)
+- add pcp-redis-datasource to allow_loading_unsigned_plugins config option
+
 * Mon Dec 21 2020 Andreas Gerstmayr <agerstmayr@redhat.com> 7.3.6-1
 - update to 7.3.6 tagged upstream community sources, see CHANGELOG
 - remove dependency on SAML (not supported in the open source version of Grafana)
