@@ -23,7 +23,7 @@ end}
 
 Name:             grafana
 Version:          7.3.6
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -623,6 +623,9 @@ export TZ=GMT
 
 
 %changelog
+* Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 7.3.6-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
+
 * Fri Jan 22 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.3.6-2
 - change working dir to $GRAFANA_HOME in grafana-cli wrapper (fixes Red Hat BZ #1916083)
 - add pcp-redis-datasource to allow_loading_unsigned_plugins config option
