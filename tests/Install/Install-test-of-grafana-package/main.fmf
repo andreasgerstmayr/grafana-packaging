@@ -1,0 +1,14 @@
+summary: Installation of grafana package and a check if grafana server runs
+description: ''
+contact:
+- Jan Kuřík <jkurik@redhat.com>
+component:
+- grafana
+test: ./runtest.sh
+framework: beakerlib
+recommend:
+- grafana
+- curl
+duration: 15m
+extra-summary: /tools/grafana/Install/Install-test-of-grafana-package
+extra-task: /tools/grafana/Install/Install-test-of-grafana-package

@@ -1,0 +1,3 @@
+PURPOSE of /tools/grafana/Install/Install-test-of-grafana-package
+Description: Installation of grafana package and a check if grafana server runs
+Author: Jan Kuřík <jkurik@redhat.com>

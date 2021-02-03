@@ -1,0 +1,15 @@
+summary: Test for BZ#1916083 (grafana-cli crashes when run from root's home)
+description: |
+    Bug summary: grafana-cli crashes when run from root's home directory
+    Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1916083
+contact:
+- Jan Kuřík <jkurik@redhat.com>
+component:
+- grafana
+test: ./runtest.sh
+framework: beakerlib
+recommend:
+- grafana
+duration: 15m
+extra-summary: /tools/grafana/Regression/bz1916083-grafana-cli-crashes-when-run-from-root-s-home
+extra-task: /tools/grafana/Regression/bz1916083-grafana-cli-crashes-when-run-from-root-s-home
