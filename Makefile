@@ -2,14 +2,17 @@ all: grafana-$(VER).tar.gz \
 	 grafana-vendor-$(VER).tar.xz \
 	 grafana-webpack-$(VER).tar.gz
 
-grafana-$(VER).tar.gz grafana-$(VER)/:
+grafana-$(VER).tar.gz:
 	wget https://github.com/grafana/grafana/archive/v$(VER)/grafana-$(VER).tar.gz
+
+grafana-vendor-$(VER).tar.xz: grafana-$(VER).tar.gz
 	rm -rf grafana-$(VER)
 	tar xfz grafana-$(VER).tar.gz
+
+	# patches can affect Go or Node.js dependencies
 	cd grafana-$(VER) && shopt -s nullglob && \
 		for patch in ../*.patch; do patch -p1 < $$patch; done
 
-grafana-vendor-$(VER).tar.xz: grafana-$(VER)/
 	# Go
 	cd grafana-$(VER) && go mod vendor -v
 	awk '$$2~/^v/ && $$4 != "indirect" {print "Provides: bundled(golang(" $$1 ")) = " substr($$2, 2)}' grafana-$(VER)/go.mod | \
@@ -27,9 +30,8 @@ grafana-vendor-$(VER).tar.xz: grafana-$(VER)/
 		grafana-$(VER)/vendor \
 		$$(find grafana-$(VER) -type d -name "node_modules" -prune)
 
-grafana-webpack-$(VER).tar.gz: grafana-$(VER)/
+grafana-webpack-$(VER).tar.gz: grafana-vendor-$(VER).tar.xz
 	cd grafana-$(VER) && \
-		yarn install --pure-lockfile && \
 		../build_frontend.sh
 
 	tar cfz $@ grafana-$(VER)/public/build grafana-$(VER)/public/views grafana-$(VER)/plugins-bundled

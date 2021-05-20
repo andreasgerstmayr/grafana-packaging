@@ -12,20 +12,29 @@ index 96efaccfce..bcdd98144f 100644
      const arrow = fs.readFileSync(fullpath);
      const table = Table.from([arrow]);
 diff --git a/packages/grafana-runtime/src/utils/queryResponse.test.ts b/packages/grafana-runtime/src/utils/queryResponse.test.ts
-index 25169669a0..05474366a2 100644
+index 0adb915d2c..8985d7beab 100644
 --- a/packages/grafana-runtime/src/utils/queryResponse.test.ts
 +++ b/packages/grafana-runtime/src/utils/queryResponse.test.ts
-@@ -38,7 +38,7 @@ const emptyResults = {
+@@ -47,7 +47,7 @@ const emptyResults = {
  /* eslint-enable */
  
- describe('GEL Utils', () => {
+ describe('Query Response parser', () => {
 -  test('should parse output with dataframe', () => {
 +  test.skip('should parse output with dataframe', () => {
      const res = toDataQueryResponse(resp);
      const frames = res.data;
-     for (const frame of frames) {
-@@ -106,7 +106,7 @@ describe('GEL Utils', () => {
-     expect(frames.length).toEqual(0);
+     expect(frames).toHaveLength(2);
+@@ -131,7 +131,7 @@ describe('Query Response parser', () => {
+     `);
+   });
+ 
+-  test('should parse output with dataframe in order of queries', () => {
++  test.skip('should parse output with dataframe in order of queries', () => {
+     const queries: DataQuery[] = [{ refId: 'B' }, { refId: 'A' }];
+     const res = toDataQueryResponse(resp, queries);
+     const frames = res.data;
+@@ -250,7 +250,7 @@ describe('Query Response parser', () => {
+     expect(ids).toEqual(['A', 'B', 'X']);
    });
  
 -  test('resultWithError', () => {
@@ -34,26 +43,27 @@ index 25169669a0..05474366a2 100644
      // qdr.Responses[q.GetRefID()] = backend.DataResponse{
      //   Error: fmt.Errorf("an Error: %w", fmt.Errorf("another error")),
 diff --git a/pkg/tsdb/influxdb/flux/executor_test.go b/pkg/tsdb/influxdb/flux/executor_test.go
-index e053c6c397..fc7685cbab 100644
+index 7cfc8bd20a..48bdf9d4f6 100644
 --- a/pkg/tsdb/influxdb/flux/executor_test.go
 +++ b/pkg/tsdb/influxdb/flux/executor_test.go
 @@ -59,6 +59,7 @@ func (r *MockRunner) runQuery(ctx context.Context, q string) (*api.QueryTableRes
  }
  
- func verifyGoldenResponse(t *testing.T, name string) *backend.DataResponse {
+ func executeMockedQuery(t *testing.T, name string, query queryModel) *backend.DataResponse {
 +	t.Skip("x86 memory dump is not compatible with other architectures")
  	runner := &MockRunner{
  		testDataPath: name + ".csv",
  	}
 diff --git a/public/app/plugins/datasource/cloudwatch/specs/datasource.test.ts b/public/app/plugins/datasource/cloudwatch/specs/datasource.test.ts
-index 94c1991dae..8e5b35eb3b 100644
+index afc8ba357b..587092a58d 100644
 --- a/public/app/plugins/datasource/cloudwatch/specs/datasource.test.ts
 +++ b/public/app/plugins/datasource/cloudwatch/specs/datasource.test.ts
-@@ -88,6 +88,7 @@ describe('CloudWatchDatasource', () => {
-     });
+@@ -78,7 +78,7 @@ describe('CloudWatchDatasource', () => {
+   });
  
-     it('should return log groups as an array of strings', async () => {
-+      return; // "it.skip" of this test leads to a test failure of the other log group test, because the mock is not active (see beforeEach() above)
-       const logGroups = await ctx.ds.describeLogGroups();
-       const expectedLogGroups = [
-         '/aws/containerinsights/dev303-workshop/application',
+   describe('When getting log groups', () => {
+-    it('should return log groups as an array of strings', async () => {
++    it.skip('should return log groups as an array of strings', async () => {
+       const response = {
+         results: {
+           A: {

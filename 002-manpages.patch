@@ -4,7 +4,7 @@ index 0000000000..7ac2af882c
 --- /dev/null
 +++ b/docs/man/man1/grafana-cli.1
 @@ -0,0 +1,60 @@
-+.TH GRAFANA "1" "December 2020" "Grafana cli version 7.3.6" "User Commands"
++.TH GRAFANA "1" "May 2021" "Grafana cli version 7.5.7" "User Commands"
 +.SH NAME
 +grafana-cli \- command line administration for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -69,8 +69,8 @@ new file mode 100644
 index 0000000000..c616268b31
 --- /dev/null
 +++ b/docs/man/man1/grafana-server.1
-@@ -0,0 +1,84 @@
-+.TH VERSION "1" "December 2020" "Version 7.3.6" "User Commands"
+@@ -0,0 +1,72 @@
++.TH VERSION "1" "May 2021" "Version 7.5.7" "User Commands"
 +.SH NAME
 +grafana-server \- back-end server for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -105,18 +105,6 @@ index 0000000000..c616268b31
 +\fB\-config\fR string
 +.IP
 +path to config file
-+.HP
-+\fB\-convey-json\fR
-+.IP
-+When true, emits results in JSON blocks. Default: 'false'
-+.HP
-+\fB\-convey-silent\fR
-+.IP
-+When true, all output from GoConvey is suppressed.
-+.HP
-+\fB\-convey-story\fR
-+.IP
-+When true, emits story output, otherwise emits dot output. When not provided, this flag mirrors the value of the '-test.v' flag
 +.HP
 +\fB\-homepath\fR string
 +.IP
