@@ -11,7 +11,7 @@ grafana-vendor-$(VER).tar.xz: grafana-$(VER).tar.gz
 
 	# patches can affect Go or Node.js dependencies
 	cd grafana-$(VER) && shopt -s nullglob && \
-		for patch in ../*.patch; do patch -p1 < $$patch; done
+		for patch in ../*.patch; do patch -p1 --fuzz=0 < $$patch; done
 
 	# Go
 	cd grafana-$(VER) && go mod vendor -v

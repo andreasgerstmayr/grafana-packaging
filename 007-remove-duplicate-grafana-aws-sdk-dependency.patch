@@ -1,8 +1,8 @@
 diff --git a/go.mod b/go.mod
-index 2161850265..ce22895fde 100644
+index 2161850265..db36c1ceed 100644
 --- a/go.mod
 +++ b/go.mod
-@@ -43,7 +43,6 @@ require (
+@@ -42,7 +42,6 @@ require (
  	github.com/google/go-cmp v0.5.4
  	github.com/google/uuid v1.2.0
  	github.com/gosimple/slug v1.9.0

@@ -65,7 +65,7 @@ Patch7:           007-remove-duplicate-grafana-aws-sdk-dependency.patch
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
 
-BuildRequires:    git, systemd, golang, go-srpm-macros
+BuildRequires:    systemd, golang, go-srpm-macros
 %if 0%{?fedora} >= 31
 BuildRequires:    go-rpm-macros
 %endif
