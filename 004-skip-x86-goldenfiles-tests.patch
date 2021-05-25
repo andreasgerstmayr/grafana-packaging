@@ -43,17 +43,17 @@ index 0adb915d2c..8985d7beab 100644
      // qdr.Responses[q.GetRefID()] = backend.DataResponse{
      //   Error: fmt.Errorf("an Error: %w", fmt.Errorf("another error")),
 diff --git a/pkg/tsdb/influxdb/flux/executor_test.go b/pkg/tsdb/influxdb/flux/executor_test.go
-index 7cfc8bd20a..48bdf9d4f6 100644
+index 7cfc8bd20a..add6b5f3b8 100644
 --- a/pkg/tsdb/influxdb/flux/executor_test.go
 +++ b/pkg/tsdb/influxdb/flux/executor_test.go
-@@ -59,6 +59,7 @@ func (r *MockRunner) runQuery(ctx context.Context, q string) (*api.QueryTableRes
+@@ -68,6 +68,7 @@ func executeMockedQuery(t *testing.T, name string, query queryModel) *backend.Da
  }
  
- func executeMockedQuery(t *testing.T, name string, query queryModel) *backend.DataResponse {
+ func verifyGoldenResponse(t *testing.T, name string) *backend.DataResponse {
 +	t.Skip("x86 memory dump is not compatible with other architectures")
- 	runner := &MockRunner{
- 		testDataPath: name + ".csv",
- 	}
+ 	dr := executeMockedQuery(t, name, queryModel{MaxDataPoints: 100})
+ 
+ 	err := experimental.CheckGoldenDataResponse(filepath.Join("testdata", fmt.Sprintf("%s.golden.txt", name)),
 diff --git a/public/app/plugins/datasource/cloudwatch/specs/datasource.test.ts b/public/app/plugins/datasource/cloudwatch/specs/datasource.test.ts
 index afc8ba357b..587092a58d 100644
 --- a/public/app/plugins/datasource/cloudwatch/specs/datasource.test.ts
