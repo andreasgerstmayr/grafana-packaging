@@ -1,0 +1,26 @@
+diff --git a/package.json b/package.json
+index 280e171804..13468e56bd 100644
+--- a/package.json
++++ b/package.json
+@@ -295,7 +295,8 @@
+   },
+   "resolutions": {
+     "caniuse-db": "1.0.30000772",
+-    "react-use-measure": "https://github.com/mckn/react-use-measure.git#remove-cjs-export"
++    "react-use-measure": "https://github.com/mckn/react-use-measure.git#remove-cjs-export",
++    "crypto-browserify": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
+   },
+   "workspaces": {
+     "packages": [
+diff --git a/scripts/webpack/webpack.common.js b/scripts/webpack/webpack.common.js
+index 3e56d31c37..a03ed1a67a 100644
+--- a/scripts/webpack/webpack.common.js
++++ b/scripts/webpack/webpack.common.js
+@@ -66,6 +66,7 @@ module.exports = {
+   },
+   node: {
+     fs: 'empty',
++    crypto: false,
+   },
+   plugins: [
+     new MonacoWebpackPlugin({

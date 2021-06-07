@@ -12,9 +12,15 @@ end}
 # is attached as a webpack tarball (in case of an unsuitable nodejs version on the build system)
 %define compile_frontend 0
 
+%if 0%{?rhel}
+%define enable_fips_mode 1
+%else
+%define enable_fips_mode 0
+%endif
+
 Name:             grafana
 Version:          7.5.7
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -62,6 +68,19 @@ Patch6:           006-fix-gtime-test-32bit.patch
 
 Patch7:           007-remove-duplicate-grafana-aws-sdk-dependency.patch
 
+Patch8:           008-remove-unused-frontend-crypto.patch
+
+# The Makefile removes a few files with crypto implementations
+# from the vendor tarball, which are not used in Grafana.
+# This patch removes all references to the deleted files.
+Patch9:           009-patch-unused-backend-crypto.patch
+
+%if %{enable_fips_mode}
+# This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
+# if FIPS mode is enabled.
+Patch10:          010-fips.patch
+%endif
+
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
 
@@ -69,8 +88,13 @@ BuildRequires:    systemd, golang, go-srpm-macros
 %if 0%{?fedora} >= 31
 BuildRequires:    go-rpm-macros
 %endif
+
 %if %{compile_frontend}
 BuildRequires:    nodejs >= 1:14, yarnpkg
+%endif
+
+%if %{enable_fips_mode}
+BuildRequires:    openssl-devel
 %endif
 
 # omit golang debugsource, see BZ995136 and related
@@ -451,6 +475,11 @@ rm -r plugins-bundled
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%if %{enable_fips_mode}
+%patch10 -p1
+%endif
 
 # Set up build subdirs and links
 mkdir -p %{_builddir}/src/github.com/grafana
@@ -580,6 +609,9 @@ export TZ=GMT
 
 %gotest ./pkg/...
 
+%if %{enable_fips_mode}
+GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
+%endif
 
 %files
 # binaries and wrappers
@@ -626,6 +658,10 @@ export TZ=GMT
 
 
 %changelog
+* Fri Jun 11 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.7-2
+- remove unused cryptographic implementations
+- use cryptographic functions from OpenSSL if FIPS mode is enabled
+
 * Tue May 25 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.7-1
 - update to 7.5.7 tagged upstream community sources, see CHANGELOG
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+#
+# generates Provides: bundled(npm(...)) = ... lines for each declared dependency and devDependency of package.json
+#
 import sys
 import json
 import re
