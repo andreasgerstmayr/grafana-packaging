@@ -1,17 +1,17 @@
 diff --git a/package.json b/package.json
-index 280e171804..13468e56bd 100644
+index 9c5a2d93e2..7f65949ea4 100644
 --- a/package.json
 +++ b/package.json
-@@ -295,7 +295,8 @@
+@@ -294,6 +294,9 @@
+     "whatwg-fetch": "3.1.0"
    },
    "resolutions": {
++    "crypto-browserify": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz",
++    "selfsigned": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz",
++    "http-signature": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz",
      "caniuse-db": "1.0.30000772",
--    "react-use-measure": "https://github.com/mckn/react-use-measure.git#remove-cjs-export"
-+    "react-use-measure": "https://github.com/mckn/react-use-measure.git#remove-cjs-export",
-+    "crypto-browserify": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
+     "react-use-measure": "https://github.com/mckn/react-use-measure.git#remove-cjs-export"
    },
-   "workspaces": {
-     "packages": [
 diff --git a/scripts/webpack/webpack.common.js b/scripts/webpack/webpack.common.js
 index 3e56d31c37..a03ed1a67a 100644
 --- a/scripts/webpack/webpack.common.js

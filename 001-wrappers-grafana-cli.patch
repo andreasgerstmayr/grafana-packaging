@@ -44,6 +44,6 @@ index 9cad151c0d..a786edc596 100755
 +  cd "${GRAFANA_HOME}"
 +  exec "$EXECUTABLE" "$OPTS" "$@"
 +else
-+  echo "Please run this script as user \"${GRAFANA_USER}\" or root."
++  echo "$0: please run this script as user \"${GRAFANA_USER}\" or root."
 +  exit 5
 +fi

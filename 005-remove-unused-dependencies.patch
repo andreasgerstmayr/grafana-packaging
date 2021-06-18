@@ -1,0 +1,63 @@
+diff --git a/go.mod b/go.mod
+index 426b70ab7a..dc0c9a61ef 100644
+--- a/go.mod
++++ b/go.mod
+@@ -21,7 +21,6 @@ require (
+ 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
+ 	github.com/centrifugal/centrifuge v0.13.0
+ 	github.com/cortexproject/cortex v1.4.1-0.20201022071705-85942c5703cf
+-	github.com/crewjam/saml v0.4.6-0.20201227203850-bca570abb2ce
+ 	github.com/davecgh/go-spew v1.1.1
+ 	github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204
+ 	github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51 // indirect
+@@ -57,7 +56,6 @@ require (
+ 	github.com/jmespath/go-jmespath v0.4.0
+ 	github.com/jonboulle/clockwork v0.2.2 // indirect
+ 	github.com/json-iterator/go v1.1.10
+-	github.com/jung-kurt/gofpdf v1.16.2
+ 	github.com/lib/pq v1.9.0
+ 	github.com/linkedin/goavro/v2 v2.10.0
+ 	github.com/magefile/mage v1.11.0
+diff --git a/go.sum b/go.sum
+index 98874d6a7c..03243066ac 100644
+--- a/go.sum
++++ b/go.sum
+@@ -282,8 +282,6 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsr
+ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=
+ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
+ github.com/crewjam/httperr v0.0.0-20190612203328-a946449404da/go.mod h1:+rmNIXRvYMqLQeR4DHyTvs6y0MEMymTz4vyFpFkKTPs=
+-github.com/crewjam/saml v0.4.6-0.20201227203850-bca570abb2ce h1:pAuTpLhCqC20s2RLhUirfw606jReW+8z2U5EvG+0S7E=
+-github.com/crewjam/saml v0.4.6-0.20201227203850-bca570abb2ce/go.mod h1:/gCaeLf13J8/621RNZ6TaExji/8xCWcn6UmdJ57wURQ=
+ github.com/crossdock/crossdock-go v0.0.0-20160816171116-049aabb0122b/go.mod h1:v9FBN7gdVTpiD/+LZ7Po0UKvROyT87uLVxTHVky/dlQ=
+ github.com/cyberdelia/templates v0.0.0-20141128023046-ca7fffd4298c/go.mod h1:GyV+0YP4qX0UQ7r2MoYZ+AvYDp12OF5yg4q8rGnyNh4=
+ github.com/cznic/b v0.0.0-20180115125044-35e9bbe41f07/go.mod h1:URriBxXwVq5ijiJ12C7iIZqlA69nTlI+LgI6/pwftG8=
+@@ -914,10 +912,6 @@ github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7
+ github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
+ github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
+ github.com/julienschmidt/httprouter v1.3.0/go.mod h1:JR6WtHb+2LUe8TCKY3cZOxFyyO8IZAc4RVcycCCAKdM=
+-github.com/jung-kurt/gofpdf v1.0.0/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
+-github.com/jung-kurt/gofpdf v1.0.3-0.20190309125859-24315acbbda5/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
+-github.com/jung-kurt/gofpdf v1.16.2 h1:jgbatWHfRlPYiK85qgevsZTHviWXKwB1TTiKdz5PtRc=
+-github.com/jung-kurt/gofpdf v1.16.2/go.mod h1:1hl7y57EsiPAkLbOwzpzqgx1A30nQCk/YmFV8S2vmK0=
+ github.com/jwilder/encoding v0.0.0-20170811194829-b4e1701a28ef/go.mod h1:Ct9fl0F6iIOGgxJ5npU/IUOhOhqlVrGjyIZc8/MagT0=
+ github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 h1:uC1QfSlInpQF+M0ao65imhwqKnz3Q2z/d8PWZRMQvDM=
+ github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88/go.mod h1:3w7q1U84EfirKl04SVQ/s7nPm1ZPhiXd34z40TNz36k=
+diff --git a/pkg/extensions/main.go b/pkg/extensions/main.go
+index 24031ace2e..081475fc89 100644
+--- a/pkg/extensions/main.go
++++ b/pkg/extensions/main.go
+@@ -6,14 +6,12 @@ import (
+ 
+ 	_ "github.com/beevik/etree"
+ 	_ "github.com/cortexproject/cortex/pkg/util"
+-	_ "github.com/crewjam/saml"
+ 	_ "github.com/gobwas/glob"
+ 	"github.com/grafana/grafana/pkg/registry"
+ 	"github.com/grafana/grafana/pkg/services/licensing"
+ 	"github.com/grafana/grafana/pkg/services/validations"
+ 	_ "github.com/grafana/loki/pkg/logproto"
+ 	_ "github.com/grpc-ecosystem/go-grpc-middleware"
+-	_ "github.com/jung-kurt/gofpdf"
+ 	_ "github.com/linkedin/goavro/v2"
+ 	_ "github.com/pkg/errors"
+ 	_ "github.com/robfig/cron"

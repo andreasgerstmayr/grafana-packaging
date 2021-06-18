@@ -19,8 +19,8 @@ end}
 %endif
 
 Name:             grafana
-Version:          7.5.7
-Release:          2%{?dist}
+Version:          7.5.8
+Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -62,11 +62,9 @@ Patch3:           003-fix-dashboard-abspath-test.patch
 # therefore loading this memory dump fails on s390x
 Patch4:           004-skip-x86-goldenfiles-tests.patch
 
-Patch5:           005-remove-saml-dependency.patch
+Patch5:           005-remove-unused-dependencies.patch
 
 Patch6:           006-fix-gtime-test-32bit.patch
-
-Patch7:           007-remove-duplicate-grafana-aws-sdk-dependency.patch
 
 Patch8:           008-remove-unused-frontend-crypto.patch
 
@@ -178,15 +176,15 @@ Provides: bundled(golang(github.com/hashicorp/go-plugin)) = 1.4.0
 Provides: bundled(golang(github.com/hashicorp/go-version)) = 1.2.1
 Provides: bundled(golang(github.com/inconshreveable/log15)) = 0.0.0-20180818164646.67afb5ed74ec
 Provides: bundled(golang(github.com/influxdata/influxdb-client-go/v2)) = 2.2.0
-Provides: bundled(golang(github.com/jaegertracing/jaeger)) = 1.22.0
+Provides: bundled(golang(github.com/jaegertracing/jaeger)) = 1.22.1-0.20210304164023.2fff3ca58910
 Provides: bundled(golang(github.com/jmespath/go-jmespath)) = 0.4.0
 Provides: bundled(golang(github.com/json-iterator/go)) = 1.1.10
-Provides: bundled(golang(github.com/jung-kurt/gofpdf)) = 1.16.2
 Provides: bundled(golang(github.com/lib/pq)) = 1.9.0
 Provides: bundled(golang(github.com/linkedin/goavro/v2)) = 2.10.0
 Provides: bundled(golang(github.com/magefile/mage)) = 1.11.0
 Provides: bundled(golang(github.com/mattn/go-isatty)) = 0.0.12
 Provides: bundled(golang(github.com/mattn/go-sqlite3)) = 1.14.6
+Provides: bundled(golang(github.com/mwitkow/go-conntrack)) = 0.0.0-20190716064945.2f068394615f
 Provides: bundled(golang(github.com/opentracing/opentracing-go)) = 1.2.0
 Provides: bundled(golang(github.com/patrickmn/go-cache)) = 2.1.0+incompatible
 Provides: bundled(golang(github.com/pkg/errors)) = 0.9.1
@@ -474,7 +472,6 @@ rm -r plugins-bundled
 %endif
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %if %{enable_fips_mode}
@@ -658,6 +655,10 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Mon Jun 21 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.8-1
+- update to 7.5.8 tagged upstream community sources, see CHANGELOG
+- remove unused dependencies selfsigned, http-signature and gofpdf
+
 * Fri Jun 11 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.7-2
 - remove unused cryptographic implementations
 - use cryptographic functions from OpenSSL if FIPS mode is enabled

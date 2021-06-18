@@ -32,6 +32,7 @@ grafana-vendor-$(VER).tar.xz: grafana-$(VER).tar.gz
 	# Remove files with licensing issues
 	find grafana-$(VER) -type d -name 'node-notifier' -prune -exec rm -r {} \;
 	find grafana-$(VER) -type f -name '*.exe' -delete
+	rm -r grafana-$(VER)/node_modules/visjs-network/examples
 	./list_bundled_nodejs_packages.py grafana-$(VER)/ >> $@.manifest
 
 	# Create tarball
