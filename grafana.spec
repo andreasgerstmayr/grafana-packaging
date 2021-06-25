@@ -19,7 +19,7 @@ end}
 %endif
 
 Name:             grafana
-Version:          7.5.8
+Version:          7.5.9
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -655,6 +655,9 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Fri Jun 25 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.9-1
+- update to 7.5.9 tagged upstream community sources, see CHANGELOG
+
 * Mon Jun 21 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.8-1
 - update to 7.5.8 tagged upstream community sources, see CHANGELOG
 - remove unused dependencies selfsigned, http-signature and gofpdf
