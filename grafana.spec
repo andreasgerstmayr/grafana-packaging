@@ -93,6 +93,9 @@ BuildRequires:    nodejs >= 1:14, yarnpkg
 
 %if %{enable_fips_mode}
 BuildRequires:    openssl-devel
+
+# only required for running the FIPS test
+BuildRequires:    openssl
 %endif
 
 # omit golang debugsource, see BZ995136 and related
@@ -607,6 +610,52 @@ export TZ=GMT
 %gotest ./pkg/...
 
 %if %{enable_fips_mode}
+# FIPS setup instructions lifted from golang.spec:
+# https://gitlab.com/redhat/centos-stream/rpms/golang/-/blob/c9s/golang.spec
+
+TEST_BORING_CONFIGS=`mktemp -d`
+TEST_BORING_CNF=$TEST_BORING_CONFIGS/openssl-boring.cnf
+TEST_BORING_FIPS_CNF=$TEST_BORING_CONFIGS/fipsmodule.cnf
+trap "rm -rf $TEST_BORING_CONFIGS" EXIT
+
+cp /etc/pki/tls/openssl.cnf $TEST_BORING_CNF
+openssl fipsinstall -module /usr/lib64/ossl-modules/fips.so -out $TEST_BORING_FIPS_CNF
+
+cat > $TEST_BORING_CNF << EOM
+openssl_conf = openssl_test
+
+[openssl_test]
+providers = provider_test
+alg_section = algorithm_test
+ssl_conf = ssl_module
+
+[algorithm_test]
+default_properties = fips=yes
+
+[provider_test]
+default = default_sect
+ # The fips section name should match the section name inside the
+ # included fipsmodule.cnf.
+fips = fips_sect
+.include $TEST_BORING_FIPS_CNF
+
+[default_sect]
+activate = 1
+
+[ ssl_module ]
+
+system_default = crypto_policy
+
+[ crypto_policy ]
+
+.include = /etc/crypto-policies/back-ends/opensslcnf.config
+
+[ new_oids ]
+
+EOM
+
+
+export OPENSSL_CONF=$TEST_BORING_CNF
 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 %endif
 
