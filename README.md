@@ -2,10 +2,10 @@
 The grafana package
 
 ## Upgrade instructions
-(replace X.Y.Z with the new Grafana version)
+(replace X.Y.Z and R with the new Grafana version)
 
 * update `Version`, `Release` and `%changelog` in the specfile
-* create bundles and manifest: `VER=X.Y.Z make clean all`
+* create bundles and manifest: `VER=X.Y.Z REL=R make clean all`
 * update specfile with contents of the `.manifest` file
 * check if the default configuration has changed: `diff grafana-X.Y.Z/conf/defaults.ini distro-defaults.ini` and update `distro-defaults.ini` if necessary
 * update the manpages patch in `002-manpages.patch` and other patches if required

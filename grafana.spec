@@ -20,7 +20,7 @@ end}
 
 Name:             grafana
 Version:          7.5.9
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -29,11 +29,11 @@ URL:              https://grafana.org
 Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}-%{version}.tar.gz
 
 # Source1 contains the bundled Go and Node.js dependencies
-Source1:          grafana-vendor-%{version}.tar.xz
+Source1:          grafana-vendor-%{version}-2.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
-Source2:          grafana-webpack-%{version}.tar.gz
+Source2:          grafana-webpack-%{version}-2.tar.gz
 %endif
 
 # Source3 contains Grafana configuration defaults for distributions
@@ -73,11 +73,9 @@ Patch8:           008-remove-unused-frontend-crypto.patch
 # This patch removes all references to the deleted files.
 Patch9:           009-patch-unused-backend-crypto.patch
 
-%if %{enable_fips_mode}
 # This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
 # if FIPS mode is enabled.
 Patch10:          010-fips.patch
-%endif
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -704,6 +702,10 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Thu Jul 08 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.9-2
+- remove unused dependency property-information
+- always include FIPS patch in SRPM
+
 * Fri Jun 25 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.9-1
 - update to 7.5.9 tagged upstream community sources, see CHANGELOG
 

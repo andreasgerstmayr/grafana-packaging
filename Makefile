@@ -1,14 +1,26 @@
-all: grafana-$(VER).tar.gz \
-	 grafana-vendor-$(VER).tar.xz \
-	 grafana-webpack-$(VER).tar.gz
+ifndef VER
+  $(error VER is undefined)
+endif
+ifndef REL
+  $(error REL is undefined)
+endif
 
-grafana-$(VER).tar.gz:
-	wget https://github.com/grafana/grafana/archive/v$(VER)/grafana-$(VER).tar.gz
+NAME       := grafana
+RPM_NAME   := $(NAME)
+SOURCE_DIR := $(NAME)-$(VER)
+SOURCE_TAR := $(NAME)-$(VER).tar.gz
+VENDOR_TAR := $(RPM_NAME)-vendor-$(VER)-$(REL).tar.xz
+WEBPACK_TAR := $(RPM_NAME)-webpack-$(VER)-$(REL).tar.gz
 
 ALL_PATCHES := $(wildcard *.patch)
 PATCHES_TO_APPLY := $(filter-out 009-patch-unused-backend-crypto.patch 010-fips.patch,$(ALL_PATCHES))
 
-grafana-vendor-$(VER).tar.xz: grafana-$(VER).tar.gz
+all: $(SOURCE_TAR) $(VENDOR_TAR) $(WEBPACK_TAR)
+
+$(SOURCE_TAR):
+	spectool -g $(RPM_NAME).spec
+
+$(VENDOR_TAR): $(SOURCE_TAR)
 	rm -rf grafana-$(VER)
 	tar xfz grafana-$(VER).tar.gz
 
@@ -31,6 +43,7 @@ grafana-vendor-$(VER).tar.xz: grafana-$(VER).tar.gz
 	cd grafana-$(VER) && yarn install --pure-lockfile
 	# Remove files with licensing issues
 	find grafana-$(VER) -type d -name 'node-notifier' -prune -exec rm -r {} \;
+	find grafana-$(VER) -type d -name 'property-information' -prune -exec rm -r {} \;
 	find grafana-$(VER) -type f -name '*.exe' -delete
 	rm -r grafana-$(VER)/node_modules/visjs-network/examples
 	./list_bundled_nodejs_packages.py grafana-$(VER)/ >> $@.manifest
@@ -40,11 +53,11 @@ grafana-vendor-$(VER).tar.xz: grafana-$(VER).tar.gz
 		grafana-$(VER)/vendor \
 		$$(find grafana-$(VER) -type d -name "node_modules" -prune)
 
-grafana-webpack-$(VER).tar.gz: grafana-vendor-$(VER).tar.xz
+$(WEBPACK_TAR): $(VENDOR_TAR)
 	cd grafana-$(VER) && \
 		../build_frontend.sh
 
 	tar cfz $@ grafana-$(VER)/public/build grafana-$(VER)/public/views grafana-$(VER)/plugins-bundled
 
 clean:
-	rm -rf *.tar.gz *.tar.xz *.manifest *.rpm grafana-*/
+	rm -rf *.tar.gz *.tar.xz *.manifest *.rpm $(NAME)-*/
