@@ -20,7 +20,7 @@ end}
 
 Name:             grafana
 Version:          7.5.9
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -702,6 +702,9 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Thu Jul 22 2021 Fedora Release Engineering <releng@fedoraproject.org> - 7.5.9-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
+
 * Thu Jul 08 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.9-2
 - remove unused dependency property-information
 - always include FIPS patch in SRPM
