@@ -20,7 +20,7 @@ end}
 
 Name:             grafana
 Version:          7.5.9
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -29,10 +29,14 @@ URL:              https://grafana.org
 Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}-%{version}.tar.gz
 
 # Source1 contains the bundled Go and Node.js dependencies
+# Note: In case there were no changes to this tarball, the NVR of this tarball
+# lags behind the NVR of the Grafana package.
 Source1:          grafana-vendor-%{version}-2.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
+# Note: In case there were no changes to this tarball, the NVR of this tarball
+# lags behind the NVR of the Grafana package.
 Source2:          grafana-webpack-%{version}-2.tar.gz
 %endif
 
@@ -702,6 +706,9 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Mon Aug 16 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.9-4
+- rebuild to resolve CVE-2021-34558
+
 * Thu Jul 22 2021 Fedora Release Engineering <releng@fedoraproject.org> - 7.5.9-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
