@@ -1,3 +1,13 @@
+# gobuild and gotest macros are not available on CentOS Stream
+# remove once BZ 1965292 is resolved
+# definitions lifted from Fedora 34 podman.spec
+%if ! 0%{?gobuild:1}
+%define gobuild(o:) GO111MODULE=off go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '-Wl,-z,relro -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld '" -a -v -x %{?**};
+%endif
+%if ! 0%{?gotest:1}
+%define gotest() GO111MODULE=off go test -buildmode pie -compiler gc -ldflags "${LDFLAGS:-} -extldflags '-Wl,-z,relro -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld '" %{?**};
+%endif
+
 %global grafana_arches %{lua: go_arches = {}
   for arch in rpm.expand("%{go_arches}"):gmatch("%S+") do
     go_arches[arch] = 1
