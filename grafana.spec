@@ -19,8 +19,8 @@ end}
 %endif
 
 Name:             grafana
-Version:          7.5.9
-Release:          4%{?dist}
+Version:          7.5.10
+Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -30,14 +30,14 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 
 # Source1 contains the bundled Go and Node.js dependencies
 # Note: In case there were no changes to this tarball, the NVR of this tarball
-# lags behind the NVR of the Grafana package.
-Source1:          grafana-vendor-%{version}-2.tar.xz
+# lags behind the NVR of this package.
+Source1:          grafana-vendor-%{version}-1.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
 # Note: In case there were no changes to this tarball, the NVR of this tarball
-# lags behind the NVR of the Grafana package.
-Source2:          grafana-webpack-%{version}-2.tar.gz
+# lags behind the NVR of this package.
+Source2:          grafana-webpack-%{version}-1.tar.gz
 %endif
 
 # Source3 contains Grafana configuration defaults for distributions
@@ -75,11 +75,11 @@ Patch8:           008-remove-unused-frontend-crypto.patch
 # The Makefile removes a few files with crypto implementations
 # from the vendor tarball, which are not used in Grafana.
 # This patch removes all references to the deleted files.
-Patch9:           009-patch-unused-backend-crypto.patch
+Patch9:           009-patch-unused-backend-crypto.vendor.patch
 
 # This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
 # if FIPS mode is enabled.
-Patch10:          010-fips.patch
+Patch10:          010-fips.cond.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -478,7 +478,6 @@ rm -r plugins-bundled
 %patch5 -p1
 %patch6 -p1
 %patch8 -p1
-%patch9 -p1
 %if %{enable_fips_mode}
 %patch10 -p1
 %endif
@@ -706,6 +705,9 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Thu Sep 30 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.10-1
+- update to 7.5.10 tagged upstream community sources, see CHANGELOG
+
 * Mon Aug 16 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.9-4
 - rebuild to resolve CVE-2021-34558
 
