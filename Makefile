@@ -50,7 +50,7 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 	for patch in $(VENDOR_PATCHES); do echo applying $$patch ...; patch -d $(SOURCE_DIR) -p1 --fuzz=0 < $$patch; done
 
 	# Create tarball
-	time XZ_OPT=-9 tar cJf $@ \
+	XZ_OPT=-9 time -p tar cJf $@ \
 		$(SOURCE_DIR)/vendor \
 		$$(find $(SOURCE_DIR) -type d -name "node_modules" -prune)
 
