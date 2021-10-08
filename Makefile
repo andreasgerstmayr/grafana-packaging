@@ -8,10 +8,17 @@ SOURCE_TAR := $(NAME)-$(VERSION).tar.gz
 VENDOR_TAR := $(RPM_NAME)-vendor-$(VERSION)-$(RELEASE).tar.xz
 WEBPACK_TAR := $(RPM_NAME)-webpack-$(VERSION)-$(RELEASE).tar.gz
 
-ALL_PATCHES     := $(sort $(wildcard *.patch))
-VENDOR_PATCHES  := $(sort $(wildcard *.vendor.patch))
-COND_PATCHES    := $(sort $(wildcard *.cond.patch))
-REGULAR_PATCHES := $(filter-out $(VENDOR_PATCHES) $(COND_PATCHES),$(ALL_PATCHES))
+# patches which must be applied before creating the vendor tarball, for example:
+# - changes in dependency versions
+# - changes in Go module imports (which affect the vendored Go modules)
+PATCHES_PRE_VENDOR := \
+	005-remove-unused-dependencies.patch \
+	008-remove-unused-frontend-crypto.patch
+
+# patches which must be applied before creating the webpack, for example:
+# - changes in Node.js sources or vendored dependencies
+PATCHES_PRE_WEBPACK :=
+
 
 all: $(SOURCE_TAR) $(VENDOR_TAR) $(WEBPACK_TAR)
 
@@ -19,11 +26,12 @@ $(SOURCE_TAR):
 	spectool -g $(RPM_NAME).spec
 
 $(VENDOR_TAR): $(SOURCE_TAR)
+	# start with a clean state
 	rm -rf $(SOURCE_DIR)
 	tar xf $(SOURCE_TAR)
 
 	# Patches to apply before vendoring
-	for patch in $(REGULAR_PATCHES); do echo applying $$patch ...; patch -d $(SOURCE_DIR) -p1 --fuzz=0 < $$patch; done
+	for patch in $(PATCHES_PRE_VENDOR); do echo applying $$patch ...; patch -d $(SOURCE_DIR) -p1 --fuzz=0 < $$patch; done
 
 	# Go
 	cd $(SOURCE_DIR) && go mod vendor -v
@@ -46,15 +54,20 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 	rm -r $(SOURCE_DIR)/node_modules/visjs-network/examples
 	./list_bundled_nodejs_packages.py $(SOURCE_DIR) >> $@.manifest
 
-	# Patches to apply after vendoring
-	for patch in $(VENDOR_PATCHES); do echo applying $$patch ...; patch -d $(SOURCE_DIR) -p1 --fuzz=0 < $$patch; done
-
 	# Create tarball
 	XZ_OPT=-9 time -p tar cJf $@ \
 		$(SOURCE_DIR)/vendor \
 		$$(find $(SOURCE_DIR) -type d -name "node_modules" -prune)
 
 $(WEBPACK_TAR): $(VENDOR_TAR)
+	# start with a clean state
+	rm -rf $(SOURCE_DIR)
+	tar xf $(SOURCE_TAR)
+	tar xf $(VENDOR_TAR)
+
+	# Patches to apply before creating the webpack
+	for patch in $(PATCHES_PRE_WEBPACK); do echo applying $$patch ...; patch -d $(SOURCE_DIR) -p1 --fuzz=0 < $$patch; done
+
 	cd $(SOURCE_DIR) && \
 		../build_frontend.sh
 

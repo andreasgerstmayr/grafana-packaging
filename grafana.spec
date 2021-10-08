@@ -85,11 +85,11 @@ Patch8:           008-remove-unused-frontend-crypto.patch
 # The Makefile removes a few files with crypto implementations
 # from the vendor tarball, which are not used in Grafana.
 # This patch removes all references to the deleted files.
-Patch9:           009-patch-unused-backend-crypto.vendor.patch
+Patch9:           009-patch-unused-backend-crypto.patch
 
 # This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
 # if FIPS mode is enabled.
-Patch10:          010-fips.cond.patch
+Patch10:          010-fips.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -488,6 +488,7 @@ rm -r plugins-bundled
 %patch5 -p1
 %patch6 -p1
 %patch8 -p1
+%patch9 -p1
 %if %{enable_fips_mode}
 %patch10 -p1
 %endif
