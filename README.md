@@ -9,7 +9,6 @@ The grafana package
 * update the manpages patch in `002-manpages.patch` and other patches if required
 * run local build: `rpkg local`
 * run rpm linter: `rpkg lint -r grafana.rpmlintrc`
-* run local builds with different OS versions: `./run_container_build.sh fedora-version`
 * run a scratch build: `fedpkg scratch-build --srpm`
 * upload new source tarballs: `fedpkg new-sources *.tar.gz *.tar.xz`
 * commit new `sources` file

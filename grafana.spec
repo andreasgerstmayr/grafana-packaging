@@ -29,7 +29,7 @@ end}
 %endif
 
 Name:             grafana
-Version:          7.5.10
+Version:          7.5.11
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -619,6 +619,10 @@ export GOPATH=%{_builddir}
 # let's set the time zone to a time zone without daylight saving time
 export TZ=GMT
 
+# GO111MODULE=on automatically skips vendored macaron sources in pkg/macaron
+# GO111MODULE=off doesn't skip them, and fails with an error due to the canoncial import path
+rm -r pkg/macaron
+
 %gotest ./pkg/...
 
 %if %{enable_fips_mode}
@@ -716,6 +720,10 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Mon Oct 11 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.11-1
+- update to 7.5.11 tagged upstream community sources, see CHANGELOG
+- resolve CVE-2021-39226
+
 * Thu Sep 30 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.10-1
 - update to 7.5.10 tagged upstream community sources, see CHANGELOG
 
