@@ -30,7 +30,7 @@ end}
 
 Name:             grafana
 Version:          7.5.11
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -90,6 +90,8 @@ Patch9:           009-patch-unused-backend-crypto.patch
 # This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
 # if FIPS mode is enabled.
 Patch10:          010-fips.patch
+
+Patch11:          011-CVE-2021-43813.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -492,6 +494,7 @@ rm -r plugins-bundled
 %if %{enable_fips_mode}
 %patch10 -p1
 %endif
+%patch11 -p1
 
 # Set up build subdirs and links
 mkdir -p %{_builddir}/src/github.com/grafana
@@ -720,6 +723,10 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Thu Dec 16 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.11-2
+- resolve CVE-2021-44716 golang: net/http: limit growth of header canonicalization cache
+- resolve CVE-2021-43813 grafana: directory traversal vulnerability for *.md files
+
 * Mon Oct 11 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.11-1
 - update to 7.5.11 tagged upstream community sources, see CHANGELOG
 - resolve CVE-2021-39226
