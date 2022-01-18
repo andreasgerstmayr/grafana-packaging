@@ -30,7 +30,7 @@ end}
 
 Name:             grafana
 Version:          7.5.11
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -92,6 +92,8 @@ Patch9:           009-patch-unused-backend-crypto.patch
 Patch10:          010-fips.patch
 
 Patch11:          011-CVE-2021-43813.patch
+
+Patch12:          012-use-hmac-sha-256-for-password-reset-tokens.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -495,6 +497,7 @@ rm -r plugins-bundled
 %patch10 -p1
 %endif
 %patch11 -p1
+%patch12 -p1
 
 # Set up build subdirs and links
 mkdir -p %{_builddir}/src/github.com/grafana
@@ -629,53 +632,7 @@ rm -r pkg/macaron
 %gotest ./pkg/...
 
 %if %{enable_fips_mode}
-# FIPS setup instructions lifted from golang.spec:
-# https://gitlab.com/redhat/centos-stream/rpms/golang/-/blob/c9s/golang.spec
-
-TEST_BORING_CONFIGS=`mktemp -d`
-TEST_BORING_CNF=$TEST_BORING_CONFIGS/openssl-boring.cnf
-TEST_BORING_FIPS_CNF=$TEST_BORING_CONFIGS/fipsmodule.cnf
-trap "rm -rf $TEST_BORING_CONFIGS" EXIT
-
-cp /etc/pki/tls/openssl.cnf $TEST_BORING_CNF
-openssl fipsinstall -module /usr/lib64/ossl-modules/fips.so -out $TEST_BORING_FIPS_CNF
-
-cat > $TEST_BORING_CNF << EOM
-openssl_conf = openssl_test
-
-[openssl_test]
-providers = provider_test
-alg_section = algorithm_test
-ssl_conf = ssl_module
-
-[algorithm_test]
-default_properties = fips=yes
-
-[provider_test]
-default = default_sect
- # The fips section name should match the section name inside the
- # included fipsmodule.cnf.
-fips = fips_sect
-.include $TEST_BORING_FIPS_CNF
-
-[default_sect]
-activate = 1
-
-[ ssl_module ]
-
-system_default = crypto_policy
-
-[ crypto_policy ]
-
-.include = /etc/crypto-policies/back-ends/opensslcnf.config
-
-[ new_oids ]
-
-EOM
-
-
-export OPENSSL_CONF=$TEST_BORING_CNF
-GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
+OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 %endif
 
 %files
@@ -723,6 +680,10 @@ GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
 
 
 %changelog
+* Tue Jan 18 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.11-3
+- use HMAC-SHA-256 instead of SHA-1 to generate password reset tokens
+- update FIPS tests in check phase
+
 * Thu Dec 16 2021 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.11-2
 - resolve CVE-2021-44716 golang: net/http: limit growth of header canonicalization cache
 - resolve CVE-2021-43813 grafana: directory traversal vulnerability for *.md files
