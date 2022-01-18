@@ -1,0 +1,28 @@
+# json-iterator/go supports go1.18 since v1.1.12
+# https://github.com/json-iterator/go/releases/tag/v1.1.12
+#
+# gonum.org/v1/gonum supports go1.18 since commit cccd8af5f6bd1539dd688c88102cb37e9117f96a
+# https://github.com/gonum/gonum/pull/1729
+
+diff --git a/go.mod b/go.mod
+index 67932fe072..2aa638fe9a 100644
+--- a/go.mod
++++ b/go.mod
+@@ -55,7 +55,7 @@ require (
+ 	github.com/jaegertracing/jaeger v1.22.1-0.20210304164023-2fff3ca58910
+ 	github.com/jmespath/go-jmespath v0.4.0
+ 	github.com/jonboulle/clockwork v0.2.2 // indirect
+-	github.com/json-iterator/go v1.1.10
++	github.com/json-iterator/go v1.1.12
+ 	github.com/lib/pq v1.9.0
+ 	github.com/linkedin/goavro/v2 v2.10.0
+ 	github.com/magefile/mage v1.11.0
+@@ -88,7 +88,7 @@ require (
+ 	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
+ 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+ 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
+-	gonum.org/v1/gonum v0.8.2
++	gonum.org/v1/gonum v0.9.1-0.20220120213227-d4eca1bbc084
+ 	google.golang.org/api v0.40.0
+ 	google.golang.org/grpc v1.36.0
+ 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

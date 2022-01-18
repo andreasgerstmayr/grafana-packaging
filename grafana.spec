@@ -29,8 +29,8 @@ end}
 %endif
 
 Name:             grafana
-Version:          7.5.11
-Release:          4%{?dist}
+Version:          7.5.13
+Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -91,9 +91,9 @@ Patch9:           009-patch-unused-backend-crypto.patch
 # if FIPS mode is enabled.
 Patch10:          010-fips.patch
 
-Patch11:          011-CVE-2021-43813.patch
+Patch11:          011-use-hmac-sha-256-for-password-reset-tokens.patch
 
-Patch12:          012-use-hmac-sha-256-for-password-reset-tokens.patch
+Patch12:          012-support-go1.18.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -197,7 +197,7 @@ Provides: bundled(golang(github.com/inconshreveable/log15)) = 0.0.0-201808181646
 Provides: bundled(golang(github.com/influxdata/influxdb-client-go/v2)) = 2.2.0
 Provides: bundled(golang(github.com/jaegertracing/jaeger)) = 1.22.1-0.20210304164023.2fff3ca58910
 Provides: bundled(golang(github.com/jmespath/go-jmespath)) = 0.4.0
-Provides: bundled(golang(github.com/json-iterator/go)) = 1.1.10
+Provides: bundled(golang(github.com/json-iterator/go)) = 1.1.12
 Provides: bundled(golang(github.com/lib/pq)) = 1.9.0
 Provides: bundled(golang(github.com/linkedin/goavro/v2)) = 2.10.0
 Provides: bundled(golang(github.com/magefile/mage)) = 1.11.0
@@ -230,7 +230,7 @@ Provides: bundled(golang(golang.org/x/net)) = 0.0.0-20210119194325.5f4716e94777
 Provides: bundled(golang(golang.org/x/oauth2)) = 0.0.0-20210113205817.d3ed898aa8a3
 Provides: bundled(golang(golang.org/x/sync)) = 0.0.0-20201207232520.09787c993a3a
 Provides: bundled(golang(golang.org/x/time)) = 0.0.0-20200630173020.3af7569d3a1e
-Provides: bundled(golang(gonum.org/v1/gonum)) = 0.8.2
+Provides: bundled(golang(gonum.org/v1/gonum)) = 0.9.1-0.20220120213227.d4eca1bbc084
 Provides: bundled(golang(google.golang.org/api)) = 0.40.0
 Provides: bundled(golang(google.golang.org/grpc)) = 1.36.0
 Provides: bundled(golang(gopkg.in/ini.v1)) = 1.62.0
@@ -680,6 +680,10 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Fri Jan 28 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.13-1
+- update to 7.5.13 tagged upstream community sources, see CHANGELOG
+- support Go 1.18
+
 * Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 7.5.11-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
 

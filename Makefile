@@ -13,11 +13,13 @@ WEBPACK_TAR := $(RPM_NAME)-webpack-$(VERSION)-$(RELEASE).tar.gz
 # - changes in Go module imports (which affect the vendored Go modules)
 PATCHES_PRE_VENDOR := \
 	005-remove-unused-dependencies.patch \
-	008-remove-unused-frontend-crypto.patch
+	008-remove-unused-frontend-crypto.patch \
+	012-support-go1.18.patch
 
 # patches which must be applied before creating the webpack, for example:
 # - changes in Node.js sources or vendored dependencies
-PATCHES_PRE_WEBPACK :=
+PATCHES_PRE_WEBPACK := \
+	008-remove-unused-frontend-crypto.patch
 
 
 all: $(SOURCE_TAR) $(VENDOR_TAR) $(WEBPACK_TAR)
