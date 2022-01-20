@@ -30,7 +30,7 @@ end}
 
 Name:             grafana
 Version:          7.5.11
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -680,6 +680,9 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 7.5.11-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
+
 * Tue Jan 18 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.11-3
 - use HMAC-SHA-256 instead of SHA-1 to generate password reset tokens
 - update FIPS tests in check phase
