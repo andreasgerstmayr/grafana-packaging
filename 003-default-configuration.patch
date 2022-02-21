@@ -1,0 +1,62 @@
+diff --git a/conf/defaults.ini b/conf/defaults.ini
+index 3e9c99f97a..6c9f15be6c 100644
+--- a/conf/defaults.ini
++++ b/conf/defaults.ini
+@@ -184,7 +184,7 @@ row_limit = 1000000
+ # No ip addresses are being tracked, only simple counters to track
+ # running instances, dashboard and error counts. It is very helpful to us.
+ # Change this option to false to disable reporting.
+-reporting_enabled = true
++reporting_enabled = false
+ 
+ # The name of the distributor of the Grafana instance. Ex hosted-grafana, grafana-labs
+ reporting_distributor = grafana-labs
+@@ -194,7 +194,7 @@ reporting_distributor = grafana-labs
+ # in some UI views to notify that grafana or plugin update exists
+ # This option does not cause any auto updates, nor send any information
+ # only a GET request to https://grafana.com to get latest versions
+-check_for_updates = true
++check_for_updates = false
+ 
+ # Google Analytics universal tracking code, only enabled if you specify an id here
+ google_analytics_ua_id =
+diff --git a/conf/sample.ini b/conf/sample.ini
+index cc90878798..f7c118ee7c 100644
+--- a/conf/sample.ini
++++ b/conf/sample.ini
+@@ -190,7 +190,7 @@
+ # No ip addresses are being tracked, only simple counters to track
+ # running instances, dashboard and error counts. It is very helpful to us.
+ # Change this option to false to disable reporting.
+-;reporting_enabled = true
++;reporting_enabled = false
+ 
+ # The name of the distributor of the Grafana instance. Ex hosted-grafana, grafana-labs
+ ;reporting_distributor = grafana-labs
+@@ -200,7 +200,7 @@
+ # in some UI views to notify that grafana or plugin update exists
+ # This option does not cause any auto updates, nor send any information
+ # only a GET request to http://grafana.com to get latest versions
+-;check_for_updates = true
++;check_for_updates = false
+ 
+ # Google Analytics universal tracking code, only enabled if you specify an id here
+ ;google_analytics_ua_id =
+@@ -310,7 +310,7 @@
+ 
+ # Minimum dashboard refresh interval. When set, this will restrict users to set the refresh interval of a dashboard lower than given interval. Per default this is 5 seconds.
+ # The interval string is a possibly signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s or 1m.
+-;min_refresh_interval = 5s
++min_refresh_interval = 1s
+ 
+ # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
+ ;default_home_dashboard_path =
+@@ -967,7 +967,7 @@
+ ;enable_alpha = false
+ ;app_tls_skip_verify_insecure = false
+ # Enter a comma-separated list of plugin identifiers to identify plugins to load even if they are unsigned. Plugins with modified signatures are never loaded.
+-;allow_loading_unsigned_plugins =
++allow_loading_unsigned_plugins = performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel
+ # Enable or disable installing / uninstalling / updating plugins directly from within Grafana.
+ ;plugin_admin_enabled = false
+ ;plugin_admin_external_manage_enabled = false

@@ -1,28 +1,23 @@
-# json-iterator/go supports go1.18 since v1.1.12
-# https://github.com/json-iterator/go/releases/tag/v1.1.12
-#
-# gonum.org/v1/gonum supports go1.18 since commit cccd8af5f6bd1539dd688c88102cb37e9117f96a
-# https://github.com/gonum/gonum/pull/1729
-
 diff --git a/go.mod b/go.mod
-index 67932fe072..2aa638fe9a 100644
+index 7015f68e26..89a4d58e9c 100644
 --- a/go.mod
 +++ b/go.mod
-@@ -55,7 +55,7 @@ require (
- 	github.com/jaegertracing/jaeger v1.22.1-0.20210304164023-2fff3ca58910
- 	github.com/jmespath/go-jmespath v0.4.0
- 	github.com/jonboulle/clockwork v0.2.2 // indirect
--	github.com/json-iterator/go v1.1.10
-+	github.com/json-iterator/go v1.1.12
- 	github.com/lib/pq v1.9.0
- 	github.com/linkedin/goavro/v2 v2.10.0
- 	github.com/magefile/mage v1.11.0
-@@ -88,7 +88,7 @@ require (
- 	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
- 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
- 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
--	gonum.org/v1/gonum v0.8.2
-+	gonum.org/v1/gonum v0.9.1-0.20220120213227-d4eca1bbc084
- 	google.golang.org/api v0.40.0
- 	google.golang.org/grpc v1.36.0
- 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+@@ -268,3 +268,5 @@ require (
+ replace github.com/apache/thrift => github.com/apache/thrift v0.14.1
+ 
+ replace github.com/hashicorp/consul => github.com/hashicorp/consul v1.10.2
++
++replace gonum.org/v1/gonum => gonum.org/v1/gonum v0.9.1-0.20220211095900-c65ee979e10c
+diff --git a/go.sum b/go.sum
+index 34a323def2..95d4681d46 100644
+--- a/go.sum
++++ b/go.sum
+@@ -3063,6 +3063,8 @@ gonum.org/v1/gonum v0.6.2/go.mod h1:9mxDZsDKxgMAuccQkewq682L+0eCu4dCN2yonUJTCLU=
+ gonum.org/v1/gonum v0.8.2/go.mod h1:oe/vMfY3deqTw+1EZJhuvEW2iwGF1bW9wwu7XCu0+v0=
+ gonum.org/v1/gonum v0.9.3 h1:DnoIG+QAMaF5NvxnGe/oKsgKcAc6PcUyl8q0VetfQ8s=
+ gonum.org/v1/gonum v0.9.3/go.mod h1:TZumC3NeyVQskjXqmyWt4S3bINhy7B4eYwW69EbyX+0=
++gonum.org/v1/gonum v0.9.1-0.20220211095900-c65ee979e10c h1:VFrVT9Jc5OQFqYzFoaZuNwWcESIK9wY/Gb6qymZhRX4=
++gonum.org/v1/gonum v0.9.1-0.20220211095900-c65ee979e10c/go.mod h1:S7yIoiv1oiaypVyZ+144dSdRQLUZNA51FyC24/3czsk=
+ gonum.org/v1/netlib v0.0.0-20181029234149-ec6d1f5cefe6/go.mod h1:wa6Ws7BG/ESfp6dHfk7C6KdzKA7wR7u/rKwOGE66zvw=
+ gonum.org/v1/netlib v0.0.0-20190313105609-8cb42192e0e0 h1:OE9mWmgKkjJyEmDAAtGMPjXu+YNeGvK9VTSHY6+Qihc=
+ gonum.org/v1/netlib v0.0.0-20190313105609-8cb42192e0e0/go.mod h1:wa6Ws7BG/ESfp6dHfk7C6KdzKA7wR7u/rKwOGE66zvw=

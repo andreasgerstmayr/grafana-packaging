@@ -5,22 +5,28 @@
 import sys
 import json
 import re
+import yaml
 from packaging import version
 
 
 def read_declared_pkgs(package_json_path):
     with open(package_json_path) as f:
         package_json = json.load(f)
-        return list(package_json['dependencies'].keys()) + list(package_json['devDependencies'].keys())
+        return list(package_json["dependencies"].keys()) + list(
+            package_json["devDependencies"].keys()
+        )
 
 
 def read_installed_pkgs(yarn_lock_path):
     with open(yarn_lock_path) as f:
-        lockfile = f.read()
-        return re.findall(r'^"?'  # can start with a "
-                          r'(.+?)@.+(?:,.*)?:\n'  # characters up to @
-                          r'  version "(.+)"',  # and the version
-                          lockfile, re.MULTILINE)
+        lockfile = yaml.safe_load(f)
+        for pkg_decl, meta in lockfile.items():
+            for pkg in pkg_decl.split(", "):
+                if ":" not in pkg:
+                    continue
+                pkg_name = pkg[: pkg.index("@", 1)]
+                pkg_version = meta["version"]
+                yield (pkg_name, pkg_version)
 
 
 def list_provides(declared_pkgs, installed_pkgs):
@@ -28,8 +34,11 @@ def list_provides(declared_pkgs, installed_pkgs):
         # there can be multiple versions installed of one package (transitive dependencies)
         # but rpm doesn't support Provides: with a single package and multiple versions
         # so let's declare the oldest version here
-        versions = [version.parse(pkg_version)
-                    for pkg_name, pkg_version in installed_pkgs if pkg_name == declared_pkg]
+        versions = [
+            version.parse(pkg_version)
+            for pkg_name, pkg_version in installed_pkgs
+            if pkg_name == declared_pkg
+        ]
         oldest_version = sorted(versions)[0]
         yield f"Provides: bundled(npm({declared_pkg})) = {oldest_version}"
 
@@ -41,7 +50,7 @@ if __name__ == "__main__":
 
     package_dir = sys.argv[1]
     declared_pkgs = read_declared_pkgs(f"{package_dir}/package.json")
-    installed_pkgs = read_installed_pkgs(f"{package_dir}/yarn.lock")
+    installed_pkgs = list(read_installed_pkgs(f"{package_dir}/yarn.lock"))
     provides = list_provides(declared_pkgs, installed_pkgs)
     for provide in sorted(provides):
         print(provide)
