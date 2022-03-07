@@ -1,0 +1,12 @@
+summary: Verification of systemd unit files
+description: ''
+contact: Jan Kuřík <jkurik@redhat.com>
+component:
+  - grafana
+test: ./runtest.sh
+framework: beakerlib
+recommend:
+  - grafana
+duration: 5m
+extra-summary: /tools/grafana/Sanity/verify-systemd-units
+extra-task: /tools/grafana/Sanity/verify-systemd-units
