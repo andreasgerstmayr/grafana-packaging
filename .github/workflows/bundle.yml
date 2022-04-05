@@ -1,0 +1,23 @@
+name: Create bundles
+on:
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Create bundles
+        run: |
+          ./create_bundles_in_container.sh
+          sha512sum *.tar.gz *.tar.xz > SHA512SUMS
+
+      - name: Upload bundles
+        uses: actions/upload-artifact@v3
+        with:
+          name: bundles
+          path: |
+            *.tar.*
+            SHA512SUMS

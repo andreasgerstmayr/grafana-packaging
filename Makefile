@@ -1,5 +1,6 @@
 VERSION := $(shell rpm --specfile *.spec --qf '%{VERSION}\n' | head -1)
 RELEASE := $(shell rpm --specfile *.spec --qf '%{RELEASE}\n' | head -1 | cut -d. -f1)
+CHANGELOGTIME := $(shell rpm --specfile *.spec --qf '%{CHANGELOGTIME}\n' | head -1)
 
 NAME       := grafana
 RPM_NAME   := $(NAME)
@@ -14,7 +15,9 @@ WEBPACK_TAR := $(RPM_NAME)-webpack-$(VERSION)-$(RELEASE).tar.gz
 PATCHES_PRE_VENDOR := \
 	005-remove-unused-dependencies.patch \
 	008-remove-unused-frontend-crypto.patch \
-	012-support-go1.18.patch
+	012-support-go1.18.patch \
+	013-CVE-2021-23648.patch \
+	014-CVE-2022-21698.patch
 
 # patches which must be applied before creating the webpack, for example:
 # - changes in Node.js sources or vendored dependencies
@@ -28,9 +31,9 @@ $(SOURCE_TAR):
 	spectool -g $(RPM_NAME).spec
 
 $(VENDOR_TAR): $(SOURCE_TAR)
-	# start with a clean state
+	# Start with a clean state
 	rm -rf $(SOURCE_DIR)
-	tar xf $(SOURCE_TAR)
+	tar pxf $(SOURCE_TAR)
 
 	# Patches to apply before vendoring
 	for patch in $(PATCHES_PRE_VENDOR); do echo applying $$patch ...; patch -d $(SOURCE_DIR) -p1 --fuzz=0 < $$patch; done
@@ -48,7 +51,7 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 		sed -E 's/=(.*)-(.*)-(.*)/=\1-\2.\3/g' > $@.manifest
 
 	# Node.js
-	cd $(SOURCE_DIR) && yarn install --pure-lockfile
+	cd $(SOURCE_DIR) && yarn install --frozen-lockfile
 	# Remove files with licensing issues
 	find $(SOURCE_DIR) -type d -name 'node-notifier' -prune -exec rm -r {} \;
 	find $(SOURCE_DIR) -type d -name 'property-information' -prune -exec rm -r {} \;
@@ -57,23 +60,36 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 	./list_bundled_nodejs_packages.py $(SOURCE_DIR) >> $@.manifest
 
 	# Create tarball
-	XZ_OPT=-9 time -p tar cJf $@ \
+	XZ_OPT=-9 tar \
+		--sort=name \
+		--mtime="@$(CHANGELOGTIME)" \
+		--owner=0 --group=0 --numeric-owner \
+		-cJf $@ \
 		$(SOURCE_DIR)/vendor \
-		$$(find $(SOURCE_DIR) -type d -name "node_modules" -prune)
+		$$(find $(SOURCE_DIR) -type d -name "node_modules" -prune | LC_ALL=C sort)
 
 $(WEBPACK_TAR): $(VENDOR_TAR)
-	# start with a clean state
+	# Start with a clean state
 	rm -rf $(SOURCE_DIR)
-	tar xf $(SOURCE_TAR)
-	tar xf $(VENDOR_TAR)
+	tar pxf $(SOURCE_TAR)
+	tar pxf $(VENDOR_TAR)
 
 	# Patches to apply before creating the webpack
 	for patch in $(PATCHES_PRE_WEBPACK); do echo applying $$patch ...; patch -d $(SOURCE_DIR) -p1 --fuzz=0 < $$patch; done
 
+	# Build frontend
 	cd $(SOURCE_DIR) && \
 		../build_frontend.sh
 
-	tar cfz $@ $(SOURCE_DIR)/public/build $(SOURCE_DIR)/public/views $(SOURCE_DIR)/plugins-bundled
+	# Create tarball
+	tar \
+		--sort=name \
+		--mtime="@$(CHANGELOGTIME)" \
+		--owner=0 --group=0 --numeric-owner \
+		-czf $@ \
+		$(SOURCE_DIR)/public/build \
+		$(SOURCE_DIR)/public/views \
+		$(SOURCE_DIR)/plugins-bundled
 
 clean:
 	rm -rf *.tar.gz *.tar.xz *.manifest *.rpm $(NAME)-*/

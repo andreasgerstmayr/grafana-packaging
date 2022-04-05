@@ -29,7 +29,7 @@ end}
 %endif
 
 Name:             grafana
-Version:          7.5.13
+Version:          7.5.15
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
@@ -53,7 +53,7 @@ Source2:          grafana-webpack-%{version}-1.tar.gz
 # Source3 contains Grafana configuration defaults for distributions
 Source3:          distro-defaults.ini
 
-# Source4 contains the Makefile to create the required bundles
+# Source4 contains the Makefile to create the vendor and webpack bundles
 Source4:          Makefile
 
 # Source5 contains the script to build the frontend
@@ -61,6 +61,9 @@ Source5:          build_frontend.sh
 
 # Source6 contains the script to generate the list of bundled nodejs packages
 Source6:          list_bundled_nodejs_packages.py
+
+# Source7 contains the script to create the vendor and webpack bundles in a container
+Source7:          create_bundles_in_container.sh
 
 # Patches
 Patch1:           001-wrappers-grafana-cli.patch
@@ -94,6 +97,11 @@ Patch10:          010-fips.patch
 Patch11:          011-use-hmac-sha-256-for-password-reset-tokens.patch
 
 Patch12:          012-support-go1.18.patch
+
+Patch13:          013-CVE-2021-23648.patch
+
+Patch14:          014-CVE-2022-21698.patch
+Patch15:          015-CVE-2022-21698.vendor.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -182,7 +190,7 @@ Provides: bundled(golang(github.com/go-stack/stack)) = 1.8.0
 Provides: bundled(golang(github.com/gobwas/glob)) = 0.2.3
 Provides: bundled(golang(github.com/golang/mock)) = 1.5.0
 Provides: bundled(golang(github.com/golang/protobuf)) = 1.4.3
-Provides: bundled(golang(github.com/google/go-cmp)) = 0.5.4
+Provides: bundled(golang(github.com/google/go-cmp)) = 0.5.7
 Provides: bundled(golang(github.com/google/uuid)) = 1.2.0
 Provides: bundled(golang(github.com/gosimple/slug)) = 1.9.0
 Provides: bundled(golang(github.com/grafana/grafana-aws-sdk)) = 0.4.0
@@ -207,9 +215,9 @@ Provides: bundled(golang(github.com/mwitkow/go-conntrack)) = 0.0.0-2019071606494
 Provides: bundled(golang(github.com/opentracing/opentracing-go)) = 1.2.0
 Provides: bundled(golang(github.com/patrickmn/go-cache)) = 2.1.0+incompatible
 Provides: bundled(golang(github.com/pkg/errors)) = 0.9.1
-Provides: bundled(golang(github.com/prometheus/client_golang)) = 1.9.0
+Provides: bundled(golang(github.com/prometheus/client_golang)) = 1.11.1
 Provides: bundled(golang(github.com/prometheus/client_model)) = 0.2.0
-Provides: bundled(golang(github.com/prometheus/common)) = 0.18.0
+Provides: bundled(golang(github.com/prometheus/common)) = 0.26.0
 Provides: bundled(golang(github.com/robfig/cron)) = 0.0.0-20180505203441.b41be1df6967
 Provides: bundled(golang(github.com/robfig/cron/v3)) = 3.0.1
 Provides: bundled(golang(github.com/russellhaering/goxmldsig)) = 1.1.0
@@ -226,11 +234,11 @@ Provides: bundled(golang(github.com/xorcare/pointer)) = 1.1.0
 Provides: bundled(golang(github.com/yudai/gojsondiff)) = 1.0.0
 Provides: bundled(golang(go.opentelemetry.io/collector)) = 0.21.0
 Provides: bundled(golang(golang.org/x/crypto)) = 0.0.0-20201221181555.eec23a3978ad
-Provides: bundled(golang(golang.org/x/net)) = 0.0.0-20210119194325.5f4716e94777
+Provides: bundled(golang(golang.org/x/net)) = 0.0.0-20211015210444.4f30a5c0130f
 Provides: bundled(golang(golang.org/x/oauth2)) = 0.0.0-20210113205817.d3ed898aa8a3
-Provides: bundled(golang(golang.org/x/sync)) = 0.0.0-20201207232520.09787c993a3a
+Provides: bundled(golang(golang.org/x/sync)) = 0.0.0-20210220032951.036812b2e83c
 Provides: bundled(golang(golang.org/x/time)) = 0.0.0-20200630173020.3af7569d3a1e
-Provides: bundled(golang(gonum.org/v1/gonum)) = 0.9.1-0.20220120213227.d4eca1bbc084
+Provides: bundled(golang(gonum.org/v1/gonum)) = 0.11.0
 Provides: bundled(golang(google.golang.org/api)) = 0.40.0
 Provides: bundled(golang(google.golang.org/grpc)) = 1.36.0
 Provides: bundled(golang(gopkg.in/ini.v1)) = 1.62.0
@@ -243,79 +251,184 @@ Provides: bundled(golang(gopkg.in/yaml.v2)) = 2.4.0
 Provides: bundled(golang(xorm.io/core)) = 0.7.3
 Provides: bundled(golang(xorm.io/xorm)) = 0.8.2
 Provides: bundled(npm(@babel/core)) = 7.6.4
+Provides: bundled(npm(@babel/core)) = 7.6.4
 Provides: bundled(npm(@babel/plugin-proposal-nullish-coalescing-operator)) = 7.8.3
 Provides: bundled(npm(@babel/plugin-proposal-optional-chaining)) = 7.8.3
 Provides: bundled(npm(@babel/plugin-syntax-dynamic-import)) = 7.7.4
 Provides: bundled(npm(@babel/preset-env)) = 7.7.4
+Provides: bundled(npm(@babel/preset-env)) = 7.7.4
 Provides: bundled(npm(@babel/preset-react)) = 7.8.3
 Provides: bundled(npm(@babel/preset-typescript)) = 7.8.3
+Provides: bundled(npm(@braintree/sanitize-url)) = 6.0.0
+Provides: bundled(npm(@cypress/webpack-preprocessor)) = 4.1.3
+Provides: bundled(npm(@emotion/core)) = 10.0.21
 Provides: bundled(npm(@emotion/core)) = 10.0.21
 Provides: bundled(npm(@grafana/api-documenter)) = 7.11.2
 Provides: bundled(npm(@grafana/api-extractor)) = 7.10.1
 Provides: bundled(npm(@grafana/aws-sdk)) = 0.0.3
+Provides: bundled(npm(@grafana/aws-sdk)) = 0.0.3
+Provides: bundled(npm(@grafana/eslint-config)) = 2.3.0
 Provides: bundled(npm(@grafana/eslint-config)) = 2.3.0
 Provides: bundled(npm(@grafana/slate-react)) = 0.22.9-grafana
+Provides: bundled(npm(@grafana/slate-react)) = 0.22.9-grafana
+Provides: bundled(npm(@grafana/tsconfig)) = 1.0.0rc1
+Provides: bundled(npm(@grafana/tsconfig)) = 1.0.0rc1
+Provides: bundled(npm(@grafana/tsconfig)) = 1.0.0rc1
+Provides: bundled(npm(@grafana/tsconfig)) = 1.0.0rc1
+Provides: bundled(npm(@grafana/tsconfig)) = 1.0.0rc1
+Provides: bundled(npm(@grafana/tsconfig)) = 1.0.0rc1
+Provides: bundled(npm(@iconscout/react-unicons)) = 1.1.4
+Provides: bundled(npm(@mochajs/json-file-reporter)) = 1.2.0
+Provides: bundled(npm(@popperjs/core)) = 2.5.4
 Provides: bundled(npm(@popperjs/core)) = 2.5.4
 Provides: bundled(npm(@reduxjs/toolkit)) = 1.5.0
+Provides: bundled(npm(@rollup/plugin-commonjs)) = 16.0.0
+Provides: bundled(npm(@rollup/plugin-commonjs)) = 16.0.0
+Provides: bundled(npm(@rollup/plugin-commonjs)) = 16.0.0
+Provides: bundled(npm(@rollup/plugin-commonjs)) = 16.0.0
+Provides: bundled(npm(@rollup/plugin-commonjs)) = 16.0.0
+Provides: bundled(npm(@rollup/plugin-image)) = 2.0.5
+Provides: bundled(npm(@rollup/plugin-json)) = 4.1.0
+Provides: bundled(npm(@rollup/plugin-node-resolve)) = 10.0.0
+Provides: bundled(npm(@rollup/plugin-node-resolve)) = 10.0.0
+Provides: bundled(npm(@rollup/plugin-node-resolve)) = 10.0.0
+Provides: bundled(npm(@rollup/plugin-node-resolve)) = 10.0.0
+Provides: bundled(npm(@rollup/plugin-node-resolve)) = 10.0.0
 Provides: bundled(npm(@rtsao/plugin-proposal-class-properties)) = 7.0.1-patch.1
+Provides: bundled(npm(@sentry/browser)) = 5.25.0
 Provides: bundled(npm(@sentry/browser)) = 5.25.0
 Provides: bundled(npm(@sentry/types)) = 5.24.2
 Provides: bundled(npm(@sentry/utils)) = 5.24.2
+Provides: bundled(npm(@storybook/addon-controls)) = 6.1.15
+Provides: bundled(npm(@storybook/addon-essentials)) = 6.1.15
+Provides: bundled(npm(@storybook/addon-knobs)) = 6.1.15
+Provides: bundled(npm(@storybook/addon-storysource)) = 6.1.15
+Provides: bundled(npm(@storybook/react)) = 6.1.15
+Provides: bundled(npm(@storybook/theming)) = 6.1.15
+Provides: bundled(npm(@testing-library/jest-dom)) = 5.11.5
 Provides: bundled(npm(@testing-library/jest-dom)) = 5.11.5
 Provides: bundled(npm(@testing-library/react)) = 11.1.2
 Provides: bundled(npm(@testing-library/react-hooks)) = 3.2.1
 Provides: bundled(npm(@testing-library/user-event)) = 12.1.3
 Provides: bundled(npm(@torkelo/react-select)) = 3.0.8
+Provides: bundled(npm(@torkelo/react-select)) = 3.0.8
 Provides: bundled(npm(@types/angular)) = 1.6.56
 Provides: bundled(npm(@types/angular-route)) = 1.7.0
 Provides: bundled(npm(@types/antlr4)) = 4.7.1
-Provides: bundled(npm(@types/braintree__sanitize-url)) = 4.0.0
+Provides: bundled(npm(@types/classnames)) = 2.2.7
+Provides: bundled(npm(@types/classnames)) = 2.2.7
 Provides: bundled(npm(@types/classnames)) = 2.2.7
 Provides: bundled(npm(@types/clipboard)) = 2.0.1
+Provides: bundled(npm(@types/command-exists)) = 1.2.0
+Provides: bundled(npm(@types/common-tags)) = 1.8.0
 Provides: bundled(npm(@types/common-tags)) = 1.8.0
 Provides: bundled(npm(@types/d3)) = 5.7.2
+Provides: bundled(npm(@types/d3)) = 5.7.2
 Provides: bundled(npm(@types/d3-force)) = 1.2.1
+Provides: bundled(npm(@types/d3-interpolate)) = 1.3.1
 Provides: bundled(npm(@types/d3-scale-chromatic)) = 1.3.1
 Provides: bundled(npm(@types/debounce-promise)) = 3.1.3
+Provides: bundled(npm(@types/deep-freeze)) = 0.1.2
 Provides: bundled(npm(@types/enzyme)) = 3.10.3
 Provides: bundled(npm(@types/enzyme-adapter-react-16)) = 1.0.6
+Provides: bundled(npm(@types/expect-puppeteer)) = 3.3.1
 Provides: bundled(npm(@types/file-saver)) = 2.0.1
+Provides: bundled(npm(@types/fs-extra)) = 8.1.0
 Provides: bundled(npm(@types/hoist-non-react-statics)) = 3.3.1
+Provides: bundled(npm(@types/hoist-non-react-statics)) = 3.3.1
+Provides: bundled(npm(@types/hoist-non-react-statics)) = 3.3.1
+Provides: bundled(npm(@types/inquirer)) = 6.5.0
 Provides: bundled(npm(@types/is-hotkey)) = 0.1.1
 Provides: bundled(npm(@types/jest)) = 26.0.12
+Provides: bundled(npm(@types/jest)) = 26.0.12
+Provides: bundled(npm(@types/jest)) = 26.0.12
+Provides: bundled(npm(@types/jest)) = 26.0.12
+Provides: bundled(npm(@types/jest)) = 26.0.12
+Provides: bundled(npm(@types/jquery)) = 3.3.38
+Provides: bundled(npm(@types/jquery)) = 3.3.38
 Provides: bundled(npm(@types/jquery)) = 3.3.38
 Provides: bundled(npm(@types/jsurl)) = 1.2.28
 Provides: bundled(npm(@types/lodash)) = 4.14.123
+Provides: bundled(npm(@types/lodash)) = 4.14.123
+Provides: bundled(npm(@types/lodash)) = 4.14.123
+Provides: bundled(npm(@types/lodash)) = 4.14.123
 Provides: bundled(npm(@types/lru-cache)) = 5.1.0
+Provides: bundled(npm(@types/marked)) = 1.1.0
 Provides: bundled(npm(@types/md5)) = 2.1.33
+Provides: bundled(npm(@types/mock-raf)) = 1.0.2
+Provides: bundled(npm(@types/moment)) = 2.13.0
 Provides: bundled(npm(@types/moment-timezone)) = 0.5.13
 Provides: bundled(npm(@types/mousetrap)) = 1.6.3
 Provides: bundled(npm(@types/node)) = 10.14.1
+Provides: bundled(npm(@types/node)) = 10.14.1
+Provides: bundled(npm(@types/node)) = 10.14.1
+Provides: bundled(npm(@types/node)) = 10.14.1
+Provides: bundled(npm(@types/node)) = 10.14.1
+Provides: bundled(npm(@types/node)) = 10.14.1
 Provides: bundled(npm(@types/papaparse)) = 5.2.0
+Provides: bundled(npm(@types/papaparse)) = 5.2.0
+Provides: bundled(npm(@types/papaparse)) = 5.2.0
+Provides: bundled(npm(@types/prettier)) = 1.18.3
 Provides: bundled(npm(@types/prismjs)) = 1.16.0
+Provides: bundled(npm(@types/puppeteer-core)) = 1.9.0
+Provides: bundled(npm(@types/react)) = 16.9.9
+Provides: bundled(npm(@types/react)) = 16.9.9
 Provides: bundled(npm(@types/react)) = 16.9.9
 Provides: bundled(npm(@types/react-beautiful-dnd)) = 12.1.2
+Provides: bundled(npm(@types/react-beautiful-dnd)) = 12.1.2
+Provides: bundled(npm(@types/react-color)) = 3.0.1
+Provides: bundled(npm(@types/react-custom-scrollbars)) = 4.0.5
+Provides: bundled(npm(@types/react-dev-utils)) = 9.0.4
 Provides: bundled(npm(@types/react-dom)) = 16.9.2
 Provides: bundled(npm(@types/react-grid-layout)) = 1.1.1
+Provides: bundled(npm(@types/react-icons)) = 2.2.7
 Provides: bundled(npm(@types/react-loadable)) = 5.5.2
 Provides: bundled(npm(@types/react-redux)) = 7.1.7
 Provides: bundled(npm(@types/react-select)) = 3.0.8
+Provides: bundled(npm(@types/react-select)) = 3.0.8
+Provides: bundled(npm(@types/react-table)) = 7.0.12
 Provides: bundled(npm(@types/react-test-renderer)) = 16.9.1
+Provides: bundled(npm(@types/react-test-renderer)) = 16.9.1
+Provides: bundled(npm(@types/react-transition-group)) = 4.2.3
 Provides: bundled(npm(@types/react-transition-group)) = 4.2.3
 Provides: bundled(npm(@types/react-virtualized-auto-sizer)) = 1.0.0
 Provides: bundled(npm(@types/react-window)) = 1.8.1
+Provides: bundled(npm(@types/recompose)) = 0.30.7
 Provides: bundled(npm(@types/redux-logger)) = 3.0.7
 Provides: bundled(npm(@types/redux-mock-store)) = 1.0.2
 Provides: bundled(npm(@types/reselect)) = 2.2.0
+Provides: bundled(npm(@types/rimraf)) = 2.0.3
+Provides: bundled(npm(@types/rollup-plugin-visualizer)) = 2.6.0
+Provides: bundled(npm(@types/rollup-plugin-visualizer)) = 2.6.0
+Provides: bundled(npm(@types/rollup-plugin-visualizer)) = 2.6.0
+Provides: bundled(npm(@types/rollup-plugin-visualizer)) = 2.6.0
+Provides: bundled(npm(@types/rollup-plugin-visualizer)) = 2.6.0
+Provides: bundled(npm(@types/semver)) = 6.0.2
+Provides: bundled(npm(@types/sinon)) = 7.5.2
+Provides: bundled(npm(@types/slate)) = 0.47.1
 Provides: bundled(npm(@types/slate)) = 0.47.1
 Provides: bundled(npm(@types/slate-plain-serializer)) = 0.6.1
 Provides: bundled(npm(@types/slate-react)) = 0.22.5
+Provides: bundled(npm(@types/slate-react)) = 0.22.5
+Provides: bundled(npm(@types/slate-react)) = 0.22.5
+Provides: bundled(npm(@types/systemjs)) = 0.20.6
+Provides: bundled(npm(@types/systemjs)) = 0.20.6
 Provides: bundled(npm(@types/testing-library__jest-dom)) = 5.9.5
 Provides: bundled(npm(@types/testing-library__react-hooks)) = 3.1.0
 Provides: bundled(npm(@types/tinycolor2)) = 1.4.1
+Provides: bundled(npm(@types/tinycolor2)) = 1.4.1
+Provides: bundled(npm(@types/tmp)) = 0.1.0
 Provides: bundled(npm(@types/uuid)) = 8.3.0
+Provides: bundled(npm(@types/webpack)) = 4.39.3
+Provides: bundled(npm(@typescript-eslint/eslint-plugin)) = 4.15.0
 Provides: bundled(npm(@typescript-eslint/eslint-plugin)) = 4.15.0
 Provides: bundled(npm(@typescript-eslint/parser)) = 4.15.0
+Provides: bundled(npm(@typescript-eslint/parser)) = 4.15.0
+Provides: bundled(npm(@visx/event)) = 1.3.0
+Provides: bundled(npm(@visx/gradient)) = 1.0.0
+Provides: bundled(npm(@visx/scale)) = 1.4.0
+Provides: bundled(npm(@visx/shape)) = 1.4.0
+Provides: bundled(npm(@visx/tooltip)) = 1.3.0
 Provides: bundled(npm(@welldone-software/why-did-you-render)) = 4.0.6
 Provides: bundled(npm(@wojtekmaj/enzyme-adapter-react-17)) = 0.3.1
 Provides: bundled(npm(abortcontroller-polyfill)) = 1.4.0
@@ -325,74 +438,146 @@ Provides: bundled(npm(angular-mocks)) = 1.6.6
 Provides: bundled(npm(angular-route)) = 1.8.2
 Provides: bundled(npm(angular-sanitize)) = 1.8.2
 Provides: bundled(npm(antlr4)) = 4.8.0
+Provides: bundled(npm(apache-arrow)) = 0.16.0
 Provides: bundled(npm(autoprefixer)) = 9.7.4
+Provides: bundled(npm(axios)) = 0.21.1
 Provides: bundled(npm(axios)) = 0.21.1
 Provides: bundled(npm(babel-core)) = 7.0.0-bridge.0
 Provides: bundled(npm(babel-jest)) = 26.6.3
+Provides: bundled(npm(babel-jest)) = 26.6.3
+Provides: bundled(npm(babel-loader)) = 8.0.6
 Provides: bundled(npm(babel-loader)) = 8.0.6
 Provides: bundled(npm(babel-plugin-angularjs-annotate)) = 0.10.0
+Provides: bundled(npm(babel-plugin-angularjs-annotate)) = 0.10.0
 Provides: bundled(npm(baron)) = 3.0.3
+Provides: bundled(npm(blink-diff)) = 1.0.13
 Provides: bundled(npm(brace)) = 0.11.1
 Provides: bundled(npm(calculate-size)) = 1.1.1
 Provides: bundled(npm(centrifuge)) = 2.6.4
+Provides: bundled(npm(chalk)) = 1.1.3
+Provides: bundled(npm(chance)) = 1.1.4
+Provides: bundled(npm(classnames)) = 2.2.6
+Provides: bundled(npm(classnames)) = 2.2.6
 Provides: bundled(npm(classnames)) = 2.2.6
 Provides: bundled(npm(clean-webpack-plugin)) = 3.0.0
 Provides: bundled(npm(clipboard)) = 2.0.4
+Provides: bundled(npm(combokeys)) = 3.0.1
+Provides: bundled(npm(command-exists)) = 1.2.8
+Provides: bundled(npm(commander)) = 2.17.1
+Provides: bundled(npm(commander)) = 2.17.1
+Provides: bundled(npm(commander)) = 2.17.1
 Provides: bundled(npm(common-tags)) = 1.8.0
+Provides: bundled(npm(common-tags)) = 1.8.0
+Provides: bundled(npm(concurrently)) = 4.1.0
+Provides: bundled(npm(copy-to-clipboard)) = 3.3.1
+Provides: bundled(npm(copy-webpack-plugin)) = 5.1.2
 Provides: bundled(npm(core-js)) = 1.2.7
 Provides: bundled(npm(css-loader)) = 3.4.2
+Provides: bundled(npm(css-loader)) = 3.4.2
+Provides: bundled(npm(cypress)) = 6.3.0
+Provides: bundled(npm(cypress-file-upload)) = 4.0.7
+Provides: bundled(npm(d3)) = 5.15.0
 Provides: bundled(npm(d3)) = 5.15.0
 Provides: bundled(npm(d3-force)) = 1.2.1
 Provides: bundled(npm(d3-scale-chromatic)) = 1.5.0
 Provides: bundled(npm(dangerously-set-html-content)) = 1.0.6
 Provides: bundled(npm(debounce-promise)) = 3.1.2
+Provides: bundled(npm(deep-freeze)) = 0.0.1
+Provides: bundled(npm(emotion)) = 10.0.27
+Provides: bundled(npm(emotion)) = 10.0.27
 Provides: bundled(npm(emotion)) = 10.0.27
 Provides: bundled(npm(enzyme)) = 3.11.0
+Provides: bundled(npm(enzyme)) = 3.11.0
+Provides: bundled(npm(enzyme-adapter-react-16)) = 1.15.2
 Provides: bundled(npm(enzyme-to-json)) = 3.4.4
 Provides: bundled(npm(es-abstract)) = 1.18.0-next.1
 Provides: bundled(npm(es6-promise)) = 4.2.8
 Provides: bundled(npm(es6-shim)) = 0.35.5
 Provides: bundled(npm(eslint)) = 2.13.1
+Provides: bundled(npm(eslint)) = 2.13.1
 Provides: bundled(npm(eslint-config-prettier)) = 7.2.0
+Provides: bundled(npm(eslint-config-prettier)) = 7.2.0
+Provides: bundled(npm(eslint-plugin-jsdoc)) = 31.6.1
 Provides: bundled(npm(eslint-plugin-jsdoc)) = 31.6.1
 Provides: bundled(npm(eslint-plugin-no-only-tests)) = 2.4.0
 Provides: bundled(npm(eslint-plugin-prettier)) = 3.3.1
+Provides: bundled(npm(eslint-plugin-prettier)) = 3.3.1
 Provides: bundled(npm(eslint-plugin-react)) = 7.22.0
 Provides: bundled(npm(eslint-plugin-react-hooks)) = 4.2.0
+Provides: bundled(npm(eslint-plugin-react-hooks)) = 4.2.0
 Provides: bundled(npm(eventemitter3)) = 3.1.2
+Provides: bundled(npm(eventemitter3)) = 3.1.2
+Provides: bundled(npm(execa)) = 0.7.0
+Provides: bundled(npm(execa)) = 0.7.0
+Provides: bundled(npm(execa)) = 0.7.0
+Provides: bundled(npm(expect-puppeteer)) = 4.1.1
 Provides: bundled(npm(expect.js)) = 0.3.1
 Provides: bundled(npm(expose-loader)) = 0.7.5
 Provides: bundled(npm(fast-text-encoding)) = 1.0.0
 Provides: bundled(npm(file-loader)) = 5.0.2
+Provides: bundled(npm(file-loader)) = 5.0.2
 Provides: bundled(npm(file-saver)) = 2.0.2
 Provides: bundled(npm(fork-ts-checker-webpack-plugin)) = 1.0.0
+Provides: bundled(npm(fork-ts-checker-webpack-plugin)) = 1.0.0
+Provides: bundled(npm(fs-extra)) = 0.30.0
+Provides: bundled(npm(fuzzy)) = 0.1.3
 Provides: bundled(npm(gaze)) = 1.1.3
 Provides: bundled(npm(glob)) = 7.1.3
+Provides: bundled(npm(globby)) = 6.1.0
 Provides: bundled(npm(hoist-non-react-statics)) = 2.5.5
+Provides: bundled(npm(hoist-non-react-statics)) = 2.5.5
+Provides: bundled(npm(hoist-non-react-statics)) = 2.5.5
+Provides: bundled(npm(html-loader)) = 0.5.5
 Provides: bundled(npm(html-loader)) = 0.5.5
 Provides: bundled(npm(html-webpack-harddisk-plugin)) = 1.0.1
 Provides: bundled(npm(html-webpack-plugin)) = 3.2.0
+Provides: bundled(npm(html-webpack-plugin)) = 3.2.0
 Provides: bundled(npm(husky)) = 4.2.1
 Provides: bundled(npm(immutable)) = 3.8.2
+Provides: bundled(npm(immutable)) = 3.8.2
+Provides: bundled(npm(inquirer)) = 0.12.0
 Provides: bundled(npm(is-hotkey)) = 0.1.4
 Provides: bundled(npm(jest)) = 26.6.3
+Provides: bundled(npm(jest)) = 26.6.3
 Provides: bundled(npm(jest-canvas-mock)) = 2.3.0
+Provides: bundled(npm(jest-canvas-mock)) = 2.3.0
+Provides: bundled(npm(jest-coverage-badges)) = 1.1.2
 Provides: bundled(npm(jest-date-mock)) = 1.0.8
+Provides: bundled(npm(jest-environment-jsdom-fifteen)) = 1.0.2
+Provides: bundled(npm(jest-junit)) = 6.4.0
 Provides: bundled(npm(jest-matcher-utils)) = 26.0.0
 Provides: bundled(npm(jquery)) = 3.5.1
+Provides: bundled(npm(jquery)) = 3.5.1
+Provides: bundled(npm(json-markup)) = 1.1.3
 Provides: bundled(npm(jsurl)) = 0.1.5
 Provides: bundled(npm(lerna)) = 3.22.1
+Provides: bundled(npm(less)) = 3.11.1
+Provides: bundled(npm(less-loader)) = 5.0.0
 Provides: bundled(npm(lint-staged)) = 10.0.7
 Provides: bundled(npm(load-grunt-tasks)) = 5.1.0
 Provides: bundled(npm(lodash)) = 4.17.21
+Provides: bundled(npm(lodash)) = 4.17.21
+Provides: bundled(npm(lodash)) = 4.17.21
+Provides: bundled(npm(lodash)) = 4.17.21
+Provides: bundled(npm(lodash)) = 4.17.21
+Provides: bundled(npm(lodash)) = 4.17.21
 Provides: bundled(npm(lru-cache)) = 4.1.5
+Provides: bundled(npm(lru-memoize)) = 1.1.0
+Provides: bundled(npm(marked)) = 2.0.1
 Provides: bundled(npm(md5)) = 2.2.1
+Provides: bundled(npm(md5-file)) = 4.0.0
+Provides: bundled(npm(memoize-one)) = 4.1.0
 Provides: bundled(npm(memoize-one)) = 4.1.0
 Provides: bundled(npm(mini-css-extract-plugin)) = 0.7.0
+Provides: bundled(npm(mini-css-extract-plugin)) = 0.7.0
 Provides: bundled(npm(mocha)) = 7.0.1
+Provides: bundled(npm(mock-raf)) = 1.0.1
 Provides: bundled(npm(module-alias)) = 2.2.2
 Provides: bundled(npm(moment)) = 2.24.0
+Provides: bundled(npm(moment)) = 2.24.0
+Provides: bundled(npm(moment)) = 2.24.0
 Provides: bundled(npm(moment-timezone)) = 0.5.28
+Provides: bundled(npm(monaco-editor)) = 0.20.0
 Provides: bundled(npm(monaco-editor)) = 0.20.0
 Provides: bundled(npm(monaco-editor-webpack-plugin)) = 1.9.0
 Provides: bundled(npm(mousetrap)) = 1.6.5
@@ -401,70 +586,174 @@ Provides: bundled(npm(mutationobserver-shim)) = 0.3.3
 Provides: bundled(npm(ngtemplate-loader)) = 2.0.1
 Provides: bundled(npm(nodemon)) = 2.0.2
 Provides: bundled(npm(optimize-css-assets-webpack-plugin)) = 5.0.4
+Provides: bundled(npm(optimize-css-assets-webpack-plugin)) = 5.0.4
+Provides: bundled(npm(ora)) = 4.0.3
 Provides: bundled(npm(papaparse)) = 5.3.0
+Provides: bundled(npm(papaparse)) = 5.3.0
+Provides: bundled(npm(pixelmatch)) = 5.1.0
+Provides: bundled(npm(pngjs)) = 2.3.1
 Provides: bundled(npm(postcss-browser-reporter)) = 0.6.0
+Provides: bundled(npm(postcss-flexbugs-fixes)) = 4.2.0
 Provides: bundled(npm(postcss-loader)) = 3.0.0
+Provides: bundled(npm(postcss-loader)) = 3.0.0
+Provides: bundled(npm(postcss-preset-env)) = 6.7.0
 Provides: bundled(npm(postcss-reporter)) = 6.0.1
 Provides: bundled(npm(prettier)) = 2.0.5
+Provides: bundled(npm(prettier)) = 2.0.5
+Provides: bundled(npm(pretty-format)) = 21.2.1
+Provides: bundled(npm(pretty-format)) = 21.2.1
+Provides: bundled(npm(pretty-format)) = 21.2.1
+Provides: bundled(npm(pretty-format)) = 21.2.1
 Provides: bundled(npm(prismjs)) = 1.21.0
 Provides: bundled(npm(prop-types)) = 15.7.2
+Provides: bundled(npm(puppeteer-core)) = 1.18.1
 Provides: bundled(npm(rc-cascader)) = 1.0.1
+Provides: bundled(npm(rc-cascader)) = 1.0.1
+Provides: bundled(npm(rc-drawer)) = 3.1.3
+Provides: bundled(npm(rc-slider)) = 9.6.4
+Provides: bundled(npm(rc-time-picker)) = 3.7.3
 Provides: bundled(npm(re-resizable)) = 6.2.0
 Provides: bundled(npm(react)) = 16.13.1
+Provides: bundled(npm(react)) = 16.13.1
 Provides: bundled(npm(react-beautiful-dnd)) = 13.0.0
+Provides: bundled(npm(react-beautiful-dnd)) = 13.0.0
+Provides: bundled(npm(react-calendar)) = 2.19.2
+Provides: bundled(npm(react-color)) = 2.18.0
+Provides: bundled(npm(react-custom-scrollbars)) = 4.2.1
+Provides: bundled(npm(react-dev-utils)) = 10.2.1
+Provides: bundled(npm(react-docgen-typescript-loader)) = 3.7.2
+Provides: bundled(npm(react-dom)) = 17.0.1
 Provides: bundled(npm(react-dom)) = 17.0.1
 Provides: bundled(npm(react-grid-layout)) = 1.2.0
 Provides: bundled(npm(react-highlight-words)) = 0.16.0
+Provides: bundled(npm(react-highlight-words)) = 0.16.0
+Provides: bundled(npm(react-hook-form)) = 5.1.3
 Provides: bundled(npm(react-hot-loader)) = 4.8.0
+Provides: bundled(npm(react-icons)) = 2.2.7
+Provides: bundled(npm(react-is)) = 16.8.0
 Provides: bundled(npm(react-loadable)) = 5.5.0
+Provides: bundled(npm(react-monaco-editor)) = 0.36.0
+Provides: bundled(npm(react-popper)) = 2.2.4
 Provides: bundled(npm(react-popper)) = 2.2.4
 Provides: bundled(npm(react-redux)) = 7.2.0
 Provides: bundled(npm(react-reverse-portal)) = 2.0.1
 Provides: bundled(npm(react-select-event)) = 5.1.0
 Provides: bundled(npm(react-sizeme)) = 2.6.12
 Provides: bundled(npm(react-split-pane)) = 0.1.89
+Provides: bundled(npm(react-storybook-addon-props-combinations)) = 1.1.0
+Provides: bundled(npm(react-table)) = 7.0.0
 Provides: bundled(npm(react-test-renderer)) = 16.10.2
+Provides: bundled(npm(react-test-renderer)) = 16.10.2
+Provides: bundled(npm(react-transition-group)) = 4.3.0
 Provides: bundled(npm(react-transition-group)) = 4.3.0
 Provides: bundled(npm(react-use)) = 13.27.0
 Provides: bundled(npm(react-virtualized-auto-sizer)) = 1.0.2
 Provides: bundled(npm(react-window)) = 1.8.5
+Provides: bundled(npm(recompose)) = 0.25.1
 Provides: bundled(npm(redux)) = 3.7.2
 Provides: bundled(npm(redux-logger)) = 3.0.6
 Provides: bundled(npm(redux-mock-store)) = 1.5.4
 Provides: bundled(npm(redux-thunk)) = 2.3.0
 Provides: bundled(npm(regenerator-runtime)) = 0.11.1
 Provides: bundled(npm(regexp-replace-loader)) = 1.0.1
+Provides: bundled(npm(replace-in-file)) = 4.1.3
+Provides: bundled(npm(replace-in-file-webpack-plugin)) = 1.0.6
 Provides: bundled(npm(reselect)) = 4.0.0
+Provides: bundled(npm(resolve-as-bin)) = 2.1.0
 Provides: bundled(npm(rimraf)) = 2.6.3
+Provides: bundled(npm(rimraf)) = 2.6.3
+Provides: bundled(npm(rollup)) = 0.63.5
+Provides: bundled(npm(rollup)) = 0.63.5
+Provides: bundled(npm(rollup)) = 0.63.5
+Provides: bundled(npm(rollup)) = 0.63.5
+Provides: bundled(npm(rollup)) = 0.63.5
+Provides: bundled(npm(rollup-plugin-copy)) = 3.3.0
+Provides: bundled(npm(rollup-plugin-sourcemaps)) = 0.6.3
+Provides: bundled(npm(rollup-plugin-sourcemaps)) = 0.6.3
+Provides: bundled(npm(rollup-plugin-sourcemaps)) = 0.6.3
+Provides: bundled(npm(rollup-plugin-sourcemaps)) = 0.6.3
+Provides: bundled(npm(rollup-plugin-sourcemaps)) = 0.6.3
+Provides: bundled(npm(rollup-plugin-terser)) = 7.0.2
+Provides: bundled(npm(rollup-plugin-terser)) = 7.0.2
+Provides: bundled(npm(rollup-plugin-terser)) = 7.0.2
+Provides: bundled(npm(rollup-plugin-terser)) = 7.0.2
+Provides: bundled(npm(rollup-plugin-terser)) = 7.0.2
+Provides: bundled(npm(rollup-plugin-typescript2)) = 0.29.0
+Provides: bundled(npm(rollup-plugin-typescript2)) = 0.29.0
+Provides: bundled(npm(rollup-plugin-typescript2)) = 0.29.0
+Provides: bundled(npm(rollup-plugin-typescript2)) = 0.29.0
+Provides: bundled(npm(rollup-plugin-typescript2)) = 0.29.0
+Provides: bundled(npm(rollup-plugin-visualizer)) = 4.2.0
+Provides: bundled(npm(rollup-plugin-visualizer)) = 4.2.0
+Provides: bundled(npm(rollup-plugin-visualizer)) = 4.2.0
+Provides: bundled(npm(rollup-plugin-visualizer)) = 4.2.0
+Provides: bundled(npm(rollup-plugin-visualizer)) = 4.2.0
 Provides: bundled(npm(rst2html)) = 1.0.4
+Provides: bundled(npm(rxjs)) = 6.5.5
 Provides: bundled(npm(rxjs)) = 6.5.5
 Provides: bundled(npm(rxjs-spy)) = 7.5.1
 Provides: bundled(npm(sass)) = 1.27.0
+Provides: bundled(npm(sass)) = 1.27.0
 Provides: bundled(npm(sass-lint)) = 1.12.1
 Provides: bundled(npm(sass-loader)) = 8.0.2
+Provides: bundled(npm(sass-loader)) = 8.0.2
 Provides: bundled(npm(search-query-parser)) = 1.5.4
+Provides: bundled(npm(semver)) = 5.7.1
+Provides: bundled(npm(simple-git)) = 1.132.0
+Provides: bundled(npm(sinon)) = 8.1.1
 Provides: bundled(npm(sinon)) = 8.1.1
 Provides: bundled(npm(slate)) = 0.47.8
+Provides: bundled(npm(slate)) = 0.47.8
 Provides: bundled(npm(slate-plain-serializer)) = 0.7.10
+Provides: bundled(npm(storybook-dark-mode)) = 1.0.4
 Provides: bundled(npm(style-loader)) = 1.1.3
+Provides: bundled(npm(style-loader)) = 1.1.3
+Provides: bundled(npm(systemjs)) = 0.20.19
+Provides: bundled(npm(systemjs-plugin-css)) = 0.1.37
+Provides: bundled(npm(terser-webpack-plugin)) = 1.4.5
 Provides: bundled(npm(terser-webpack-plugin)) = 1.4.5
 Provides: bundled(npm(tether)) = 1.4.7
 Provides: bundled(npm(tether-drop)) = 1.5.0
 Provides: bundled(npm(tinycolor2)) = 1.4.1
+Provides: bundled(npm(tinycolor2)) = 1.4.1
+Provides: bundled(npm(tinycolor2)) = 1.4.1
 Provides: bundled(npm(ts-jest)) = 26.4.4
+Provides: bundled(npm(ts-jest)) = 26.4.4
+Provides: bundled(npm(ts-loader)) = 6.2.1
+Provides: bundled(npm(ts-loader)) = 6.2.1
+Provides: bundled(npm(ts-loader)) = 6.2.1
+Provides: bundled(npm(ts-loader)) = 6.2.1
+Provides: bundled(npm(ts-node)) = 9.0.0
+Provides: bundled(npm(ts-node)) = 9.0.0
 Provides: bundled(npm(ts-node)) = 9.0.0
 Provides: bundled(npm(tslib)) = 1.10.0
+Provides: bundled(npm(tslib)) = 1.10.0
 Provides: bundled(npm(tti-polyfill)) = 0.2.2
+Provides: bundled(npm(tween-functions)) = 1.2.0
 Provides: bundled(npm(typescript)) = 3.9.7
+Provides: bundled(npm(typescript)) = 3.9.7
+Provides: bundled(npm(typescript)) = 3.9.7
+Provides: bundled(npm(typescript)) = 3.9.7
+Provides: bundled(npm(typescript)) = 3.9.7
+Provides: bundled(npm(typescript)) = 3.9.7
+Provides: bundled(npm(typescript)) = 3.9.7
+Provides: bundled(npm(typescript)) = 3.9.7
+Provides: bundled(npm(uplot)) = 1.6.9
+Provides: bundled(npm(url-loader)) = 2.2.0
 Provides: bundled(npm(uuid)) = 3.3.3
 Provides: bundled(npm(visjs-network)) = 4.25.0
+Provides: bundled(npm(webpack)) = 4.41.5
 Provides: bundled(npm(webpack)) = 4.41.5
 Provides: bundled(npm(webpack-bundle-analyzer)) = 3.6.0
 Provides: bundled(npm(webpack-cleanup-plugin)) = 0.5.1
 Provides: bundled(npm(webpack-cli)) = 3.3.10
 Provides: bundled(npm(webpack-dev-server)) = 3.11.1
+Provides: bundled(npm(webpack-filter-warnings-plugin)) = 1.2.1
 Provides: bundled(npm(webpack-merge)) = 4.2.2
 Provides: bundled(npm(whatwg-fetch)) = 3.0.0
+Provides: bundled(npm(xss)) = 1.0.6
+Provides: bundled(npm(yaml)) = 1.7.2
+Provides: bundled(npm(yaml)) = 1.7.2
 Provides: bundled(npm(zone.js)) = 0.7.8
 
 
@@ -498,6 +787,9 @@ rm -r plugins-bundled
 %endif
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
 
 # Set up build subdirs and links
 mkdir -p %{_builddir}/src/github.com/grafana
@@ -680,6 +972,17 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Fri Apr 08 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.15-1
+- update to 7.5.15 tagged upstream community sources, see CHANGELOG
+- resolve CVE-2022-21673 grafana: Forward OAuth Identity Token can allow users to access some data sources
+- resolve CVE-2022-21702 grafana: XSS vulnerability in data source handling
+- resolve CVE-2022-21703 grafana: CSRF vulnerability can lead to privilege escalation
+- resolve CVE-2022-21713 grafana: IDOR vulnerability can lead to information disclosure
+- resolve CVE-2021-23648 sanitize-url: XSS
+- resolve CVE-2022-21698 prometheus/client_golang: Denial of service using InstrumentHandlerCounter
+- declare Node.js dependencies of subpackages
+- make vendor and webpack tarballs reproducible
+
 * Fri Jan 28 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.13-1
 - update to 7.5.13 tagged upstream community sources, see CHANGELOG
 - support Go 1.18

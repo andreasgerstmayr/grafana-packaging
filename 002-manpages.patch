@@ -4,7 +4,7 @@ index 0000000000..7ac2af882c
 --- /dev/null
 +++ b/docs/man/man1/grafana-cli.1
 @@ -0,0 +1,60 @@
-+.TH GRAFANA "1" "January 2022" "Grafana cli version 7.5.13" "User Commands"
++.TH GRAFANA "1" "April 2022" "Grafana cli version 7.5.15" "User Commands"
 +.SH NAME
 +grafana-cli \- command line administration for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -70,7 +70,7 @@ index 0000000000..c616268b31
 --- /dev/null
 +++ b/docs/man/man1/grafana-server.1
 @@ -0,0 +1,72 @@
-+.TH VERSION "1" "January 2022" "Version 7.5.13" "User Commands"
++.TH VERSION "1" "April 2022" "Version 7.5.15" "User Commands"
 +.SH NAME
 +grafana-server \- back-end server for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
