@@ -30,7 +30,7 @@ end}
 
 Name:             grafana
 Version:          7.5.15
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -41,13 +41,13 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 # Source1 contains the bundled Go and Node.js dependencies
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source1:          grafana-vendor-%{version}-1.tar.xz
+Source1:          grafana-vendor-%{version}-2.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source2:          grafana-webpack-%{version}-1.tar.gz
+Source2:          grafana-webpack-%{version}-2.tar.gz
 %endif
 
 # Source3 contains Grafana configuration defaults for distributions
@@ -972,6 +972,11 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Mon Apr 11 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.15-2
+- use clamp-mtime when generating the vendor and webpack tarballs,
+  to preserve past timestamps but still keep reproducibility
+- round tarball mtime timestamp to midnight, to match SOURCE_DATE_EPOCH
+
 * Fri Apr 08 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.15-1
 - update to 7.5.15 tagged upstream community sources, see CHANGELOG
 - resolve CVE-2022-21673 grafana: Forward OAuth Identity Token can allow users to access some data sources

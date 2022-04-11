@@ -1,6 +1,7 @@
 VERSION := $(shell rpm --specfile *.spec --qf '%{VERSION}\n' | head -1)
 RELEASE := $(shell rpm --specfile *.spec --qf '%{RELEASE}\n' | head -1 | cut -d. -f1)
 CHANGELOGTIME := $(shell rpm --specfile *.spec --qf '%{CHANGELOGTIME}\n' | head -1)
+SOURCE_DATE_EPOCH := $(shell echo $$(( $(CHANGELOGTIME) - $(CHANGELOGTIME) % 86400 )))
 
 NAME       := grafana
 RPM_NAME   := $(NAME)
@@ -62,7 +63,7 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 	# Create tarball
 	XZ_OPT=-9 tar \
 		--sort=name \
-		--mtime="@$(CHANGELOGTIME)" \
+		--mtime="@$(SOURCE_DATE_EPOCH)" --clamp-mtime \
 		--owner=0 --group=0 --numeric-owner \
 		-cJf $@ \
 		$(SOURCE_DIR)/vendor \
@@ -84,7 +85,7 @@ $(WEBPACK_TAR): $(VENDOR_TAR)
 	# Create tarball
 	tar \
 		--sort=name \
-		--mtime="@$(CHANGELOGTIME)" \
+		--mtime="@$(SOURCE_DATE_EPOCH)" --clamp-mtime \
 		--owner=0 --group=0 --numeric-owner \
 		-czf $@ \
 		$(SOURCE_DIR)/public/build \

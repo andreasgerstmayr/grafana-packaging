@@ -12,7 +12,7 @@ jobs:
       - name: Create bundles
         run: |
           ./create_bundles_in_container.sh
-          sha512sum *.tar.gz *.tar.xz > SHA512SUMS
+          sha512sum *.tar.gz *.tar.xz | tee SHA512SUMS
 
       - name: Upload bundles
         uses: actions/upload-artifact@v3
