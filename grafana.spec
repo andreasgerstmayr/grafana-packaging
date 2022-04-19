@@ -117,9 +117,6 @@ BuildRequires:    nodejs >= 1:14, yarnpkg
 
 %if %{enable_fips_mode}
 BuildRequires:    openssl-devel
-
-# only required for running the FIPS test
-BuildRequires:    openssl
 %endif
 
 # omit golang debugsource, see BZ995136 and related
@@ -785,7 +782,9 @@ rm -r plugins-bundled
 %if %{enable_fips_mode}
 %patch10 -p1
 %endif
+%if 0%{?fedora} || 0%{?rhel} > 8
 %patch11 -p1
+%endif
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
