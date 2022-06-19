@@ -30,7 +30,7 @@ end}
 
 Name:             grafana
 Version:          7.5.15
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          ASL 2.0
 URL:              https://grafana.org
@@ -971,6 +971,10 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Sun Jun 19 2022 Robert-André Mauchin <zebob.m@gmail.com> - 7.5.15-3
+- Rebuilt for CVE-2022-1996, CVE-2022-24675, CVE-2022-28327, CVE-2022-27191,
+  CVE-2022-29526, CVE-2022-30629
+
 * Mon Apr 11 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 7.5.15-2
 - use clamp-mtime when generating the vendor and webpack tarballs,
   to preserve past timestamps but still keep reproducibility
