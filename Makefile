@@ -14,16 +14,14 @@ WEBPACK_TAR := $(RPM_NAME)-webpack-$(VERSION)-$(RELEASE).tar.gz
 # - changes in dependency versions
 # - changes in Go module imports (which affect the vendored Go modules)
 PATCHES_PRE_VENDOR := \
-	005-remove-unused-dependencies.patch \
-	008-remove-unused-frontend-crypto.patch \
-	012-support-go1.18.patch \
-	013-CVE-2021-23648.patch \
-	014-CVE-2022-21698.patch
+	0005-remove-unused-backend-dependencies.patch \
+	0006-remove-unused-frontend-crypto.patch \
+	0010-disable-husky-git-hook.patch \
 
 # patches which must be applied before creating the webpack, for example:
 # - changes in Node.js sources or vendored dependencies
 PATCHES_PRE_WEBPACK := \
-	008-remove-unused-frontend-crypto.patch
+	0006-remove-unused-frontend-crypto.patch \
 
 
 all: $(SOURCE_TAR) $(VENDOR_TAR) $(WEBPACK_TAR)
@@ -41,6 +39,8 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 
 	# Go
 	cd $(SOURCE_DIR) && go mod vendor -v
+	# Generate Go files
+	cd $(SOURCE_DIR) && make gen-go
 	# Remove unused crypto
 	rm $(SOURCE_DIR)/vendor/golang.org/x/crypto/cast5/cast5.go
 	rm $(SOURCE_DIR)/vendor/golang.org/x/crypto/ed25519/ed25519.go
@@ -54,10 +54,9 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 	# Node.js
 	cd $(SOURCE_DIR) && yarn install --frozen-lockfile
 	# Remove files with licensing issues
-	find $(SOURCE_DIR) -type d -name 'node-notifier' -prune -exec rm -r {} \;
-	find $(SOURCE_DIR) -type d -name 'property-information' -prune -exec rm -r {} \;
-	find $(SOURCE_DIR) -type f -name '*.exe' -delete
-	rm -r $(SOURCE_DIR)/node_modules/visjs-network/examples
+	find $(SOURCE_DIR)/.yarn -name 'node-notifier' -prune -exec rm -r {} \;
+	find $(SOURCE_DIR)/.yarn -name 'nodemon' -prune -exec rm -r {} \;
+	#rm -r $(SOURCE_DIR)/node_modules/visjs-network/examples
 	./list_bundled_nodejs_packages.py $(SOURCE_DIR) >> $@.manifest
 
 	# Create tarball
@@ -67,7 +66,10 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 		--owner=0 --group=0 --numeric-owner \
 		-cJf $@ \
 		$(SOURCE_DIR)/vendor \
-		$$(find $(SOURCE_DIR) -type d -name "node_modules" -prune | LC_ALL=C sort)
+		$$(find $(SOURCE_DIR) -type f -name "wire_gen.go" | LC_ALL=C sort) \
+		$(SOURCE_DIR)/.pnp.cjs \
+		$(SOURCE_DIR)/.yarn/cache \
+		$(SOURCE_DIR)/.yarn/unplugged
 
 $(WEBPACK_TAR): $(VENDOR_TAR)
 	# Start with a clean state
@@ -88,9 +90,11 @@ $(WEBPACK_TAR): $(VENDOR_TAR)
 		--mtime="@$(SOURCE_DATE_EPOCH)" --clamp-mtime \
 		--owner=0 --group=0 --numeric-owner \
 		-czf $@ \
+		$(SOURCE_DIR)/plugins-bundled \
 		$(SOURCE_DIR)/public/build \
-		$(SOURCE_DIR)/public/views \
-		$(SOURCE_DIR)/plugins-bundled
+		$(SOURCE_DIR)/public/img \
+		$(SOURCE_DIR)/public/lib \
+		$(SOURCE_DIR)/public/views
 
 clean:
 	rm -rf *.tar.gz *.tar.xz *.manifest *.rpm $(NAME)-*/

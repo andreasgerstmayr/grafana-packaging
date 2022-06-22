@@ -1,12 +1,19 @@
 # grafana
 The grafana package
 
+## Setup instructions
+* clone the upstream sources: `git clone https://github.com/grafana/grafana && cd grafana`
+* checkout the desired version (tag): `git checkout vX.Y.Z`
+* run: `go mod vendor && git add -f vendor && git commit -m vendor` (this step is required because some patches modify vendor sources)
+* apply existing patches: `git am ../*.patch` and resolve any errors
+* create new patches from the modified git commits: `git format-patch -N --no-stat --no-signature <commit-hash-of-vendor-commit>`
+
 ## Upgrade instructions
+* follow the Setup instructions above with the new upstream version
 * update `Version`, `Release`, `%changelog` and tarball NVRs in the specfile
 * create bundles and manifest: `make clean all`
 * update specfile with contents of the `.manifest` file
-* check if the default configuration has changed: `diff grafana-X.Y.Z/conf/defaults.ini distro-defaults.ini` and update `distro-defaults.ini` if necessary
-* update the manpages patch in `002-manpages.patch` and other patches if required
+* update the manpages patch in `0002-add-manpages.patch` and other patches if required
 * run local build: `rpkg local`
 * run rpm linter: `rpkg lint -r grafana.rpmlintrc`
 * run a scratch build: `fedpkg scratch-build --srpm`

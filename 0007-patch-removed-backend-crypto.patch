@@ -1,6 +1,15 @@
+From 72edc2320aaa72ff562a0ea50ce4daa42bbabd2e Mon Sep 17 00:00:00 2001
+From: Andreas Gerstmayr <agerstmayr@redhat.com>
+Date: Wed, 22 Jun 2022 17:42:30 +0200
+Subject: [PATCH] patch removed backend crypto
+
+the `Makefile` removed a few files containing (unused) crypto
+algorithms from the vendor tarball, which are not used in Grafana.
+This patch removes all references to the deleted files.
+
 diff --git a/vendor/golang.org/x/crypto/openpgp/elgamal/elgamal.go b/vendor/golang.org/x/crypto/openpgp/elgamal/elgamal.go
 new file mode 100644
-index 0000000..871e612
+index 0000000000..871e612a61
 --- /dev/null
 +++ b/vendor/golang.org/x/crypto/openpgp/elgamal/elgamal.go
 @@ -0,0 +1,25 @@
@@ -30,10 +39,10 @@ index 0000000..871e612
 +	panic("ElGamal encryption not available")
 +}
 diff --git a/vendor/golang.org/x/crypto/openpgp/packet/packet.go b/vendor/golang.org/x/crypto/openpgp/packet/packet.go
-index 9728d61..9f04c2d 100644
+index 0a19794a8e..25a5ee9158 100644
 --- a/vendor/golang.org/x/crypto/openpgp/packet/packet.go
 +++ b/vendor/golang.org/x/crypto/openpgp/packet/packet.go
-@@ -16,7 +16,6 @@ import (
+@@ -22,7 +22,6 @@ import (
  	"math/big"
  	"math/bits"
  
@@ -41,7 +50,7 @@ index 9728d61..9f04c2d 100644
  	"golang.org/x/crypto/openpgp/errors"
  )
  
-@@ -487,7 +486,7 @@ func (cipher CipherFunction) KeySize() int {
+@@ -493,7 +492,7 @@ func (cipher CipherFunction) KeySize() int {
  	case Cipher3DES:
  		return 24
  	case CipherCAST5:
@@ -50,7 +59,7 @@ index 9728d61..9f04c2d 100644
  	case CipherAES128:
  		return 16
  	case CipherAES192:
-@@ -517,7 +516,7 @@ func (cipher CipherFunction) new(key []byte) (block cipher.Block) {
+@@ -523,7 +522,7 @@ func (cipher CipherFunction) new(key []byte) (block cipher.Block) {
  	case Cipher3DES:
  		block, _ = des.NewTripleDESCipher(key)
  	case CipherCAST5:
@@ -60,7 +69,7 @@ index 9728d61..9f04c2d 100644
  		block, _ = aes.NewCipher(key)
  	}
 diff --git a/vendor/golang.org/x/crypto/openpgp/packet/symmetrically_encrypted.go b/vendor/golang.org/x/crypto/openpgp/packet/symmetrically_encrypted.go
-index 6126030..3a54c5f 100644
+index 6126030eb9..3a54c5f2b1 100644
 --- a/vendor/golang.org/x/crypto/openpgp/packet/symmetrically_encrypted.go
 +++ b/vendor/golang.org/x/crypto/openpgp/packet/symmetrically_encrypted.go
 @@ -5,13 +5,12 @@
