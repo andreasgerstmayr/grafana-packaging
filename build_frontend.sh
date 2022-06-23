@@ -1,6 +1,7 @@
 #!/bin/bash -eu
 
 # Build the frontend
+echo $NODE_OPTIONS
 yarn run build
 
 # Build the bundled plugins

@@ -1,8 +1,16 @@
+From c088e9d1619609ec0482eaa7d0a3bae45026953f Mon Sep 17 00:00:00 2001
+From: Andreas Gerstmayr <agerstmayr@redhat.com>
+Date: Wed, 22 Jun 2022 17:36:47 +0200
+Subject: [PATCH] remove unused frontend crypto
+
+update `package.json` and then run `yarn install` to update the
+`yarn.lock` lockfile
+
 diff --git a/package.json b/package.json
-index c4a21acd45..ffc91c537a 100644
+index 2f7baca3dd..190feff8a4 100644
 --- a/package.json
 +++ b/package.json
-@@ -369,6 +369,9 @@
+@@ -391,6 +391,9 @@
      "whatwg-fetch": "3.6.2"
    },
    "resolutions": {
@@ -11,12 +19,12 @@ index c4a21acd45..ffc91c537a 100644
 +    "http-signature": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.3.tgz",
      "underscore": "1.13.2",
      "@types/slate": "0.47.2",
-     "@microsoft/api-extractor-model": "7.15.3",
+     "@microsoft/api-extractor-model": "7.16.0",
 diff --git a/yarn.lock b/yarn.lock
-index f69b2c7924..f2437a4157 100644
+index 71952b9f8d..cc3e1b89f8 100644
 --- a/yarn.lock
 +++ b/yarn.lock
-@@ -12367,34 +12367,6 @@ __metadata:
+@@ -12985,34 +12985,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -51,7 +59,7 @@ index f69b2c7924..f2437a4157 100644
  "assert@npm:2.0.0":
    version: 2.0.0
    resolution: "assert@npm:2.0.0"
-@@ -13068,15 +13040,6 @@ __metadata:
+@@ -13672,15 +13644,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -67,7 +75,7 @@ index f69b2c7924..f2437a4157 100644
  "before-after-hook@npm:^2.2.0":
    version: 2.2.2
    resolution: "before-after-hook@npm:2.2.2"
-@@ -13175,20 +13138,6 @@ __metadata:
+@@ -13779,20 +13742,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -88,7 +96,7 @@ index f69b2c7924..f2437a4157 100644
  "body-parser@npm:1.19.0":
    version: 1.19.0
    resolution: "body-parser@npm:1.19.0"
-@@ -13288,13 +13237,6 @@ __metadata:
+@@ -13892,13 +13841,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -102,7 +110,7 @@ index f69b2c7924..f2437a4157 100644
  "browser-process-hrtime@npm:^1.0.0":
    version: 1.0.0
    resolution: "browser-process-hrtime@npm:1.0.0"
-@@ -13309,70 +13251,6 @@ __metadata:
+@@ -13913,70 +13855,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -173,7 +181,7 @@ index f69b2c7924..f2437a4157 100644
  "browserify-zlib@npm:^0.2.0":
    version: 0.2.0
    resolution: "browserify-zlib@npm:0.2.0"
-@@ -13466,13 +13344,6 @@ __metadata:
+@@ -14070,13 +13948,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -187,7 +195,7 @@ index f69b2c7924..f2437a4157 100644
  "buffer@npm:^4.3.0":
    version: 4.9.2
    resolution: "buffer@npm:4.9.2"
-@@ -14108,16 +13979,6 @@ __metadata:
+@@ -14726,16 +14597,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -204,7 +212,7 @@ index f69b2c7924..f2437a4157 100644
  "cjs-module-lexer@npm:^0.6.0":
    version: 0.6.0
    resolution: "cjs-module-lexer@npm:0.6.0"
-@@ -15034,13 +14895,6 @@ __metadata:
+@@ -15675,13 +15536,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -218,7 +226,7 @@ index f69b2c7924..f2437a4157 100644
  "core-util-is@npm:~1.0.0":
    version: 1.0.3
    resolution: "core-util-is@npm:1.0.3"
-@@ -15122,16 +14976,6 @@ __metadata:
+@@ -15763,16 +15617,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -235,7 +243,7 @@ index f69b2c7924..f2437a4157 100644
  "create-emotion@npm:^10.0.14, create-emotion@npm:^10.0.27":
    version: 10.0.27
    resolution: "create-emotion@npm:10.0.27"
-@@ -15144,33 +14988,6 @@ __metadata:
+@@ -15785,33 +15629,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -269,7 +277,7 @@ index f69b2c7924..f2437a4157 100644
  "create-require@npm:^1.1.0":
    version: 1.1.1
    resolution: "create-require@npm:1.1.1"
-@@ -15202,22 +15019,10 @@ __metadata:
+@@ -15843,22 +15660,10 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -296,7 +304,7 @@ index f69b2c7924..f2437a4157 100644
    languageName: node
    linkType: hard
  
-@@ -16214,15 +16019,6 @@ __metadata:
+@@ -16862,15 +16667,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -312,7 +320,7 @@ index f69b2c7924..f2437a4157 100644
  "data-urls@npm:^1.1.0":
    version: 1.1.0
    resolution: "data-urls@npm:1.1.0"
-@@ -16566,16 +16362,6 @@ __metadata:
+@@ -17226,16 +17022,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -329,7 +337,7 @@ index f69b2c7924..f2437a4157 100644
  "destroy@npm:~1.0.4":
    version: 1.0.4
    resolution: "destroy@npm:1.0.4"
-@@ -16705,17 +16491,6 @@ __metadata:
+@@ -17372,17 +17158,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -347,7 +355,7 @@ index f69b2c7924..f2437a4157 100644
  "dir-glob@npm:^2.0.0, dir-glob@npm:^2.2.2":
    version: 2.2.2
    resolution: "dir-glob@npm:2.2.2"
-@@ -17014,16 +16789,6 @@ __metadata:
+@@ -17688,16 +17463,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -364,7 +372,7 @@ index f69b2c7924..f2437a4157 100644
  "ee-first@npm:1.1.1":
    version: 1.1.1
    resolution: "ee-first@npm:1.1.1"
-@@ -17061,21 +16826,6 @@ __metadata:
+@@ -17735,21 +17500,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -386,7 +394,7 @@ index f69b2c7924..f2437a4157 100644
  "emitter-component@npm:^1.1.1":
    version: 1.1.1
    resolution: "emitter-component@npm:1.1.1"
-@@ -17935,17 +17685,6 @@ __metadata:
+@@ -18828,17 +18578,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -404,7 +412,7 @@ index f69b2c7924..f2437a4157 100644
  "exec-sh@npm:^0.3.2":
    version: 0.3.6
    resolution: "exec-sh@npm:0.3.6"
-@@ -18201,20 +17940,6 @@ __metadata:
+@@ -19094,20 +18833,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -425,7 +433,7 @@ index f69b2c7924..f2437a4157 100644
  "fast-deep-equal@npm:^3.0.0, fast-deep-equal@npm:^3.1.1, fast-deep-equal@npm:^3.1.3":
    version: 3.1.3
    resolution: "fast-deep-equal@npm:3.1.3"
-@@ -19216,15 +18941,6 @@ __metadata:
+@@ -20151,15 +19876,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -441,7 +449,7 @@ index f69b2c7924..f2437a4157 100644
  "git-raw-commits@npm:^2.0.8":
    version: 2.0.10
    resolution: "git-raw-commits@npm:2.0.10"
-@@ -20057,27 +19773,6 @@ __metadata:
+@@ -21012,27 +20728,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -469,7 +477,7 @@ index f69b2c7924..f2437a4157 100644
  "hast-to-hyperscript@npm:^9.0.0":
    version: 9.0.1
    resolution: "hast-to-hyperscript@npm:9.0.1"
-@@ -20213,17 +19908,6 @@ __metadata:
+@@ -21168,17 +20863,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -487,7 +495,7 @@ index f69b2c7924..f2437a4157 100644
  "hoist-non-react-statics@npm:3.3.2, hoist-non-react-statics@npm:^3.1.0, hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.1, hoist-non-react-statics@npm:^3.3.2":
    version: 3.3.2
    resolution: "hoist-non-react-statics@npm:3.3.2"
-@@ -20595,25 +20279,10 @@ __metadata:
+@@ -21555,25 +21239,10 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -517,7 +525,7 @@ index f69b2c7924..f2437a4157 100644
    languageName: node
    linkType: hard
  
-@@ -23225,13 +22894,6 @@ __metadata:
+@@ -24306,13 +23975,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -531,7 +539,7 @@ index f69b2c7924..f2437a4157 100644
  "jsdoc-type-pratt-parser@npm:~2.2.2":
    version: 2.2.2
    resolution: "jsdoc-type-pratt-parser@npm:2.2.2"
-@@ -23378,20 +23040,6 @@ __metadata:
+@@ -24466,20 +24128,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -552,7 +560,7 @@ index f69b2c7924..f2437a4157 100644
  "json-source-map@npm:0.6.1":
    version: 0.6.1
    resolution: "json-source-map@npm:0.6.1"
-@@ -23495,30 +23143,6 @@ __metadata:
+@@ -24583,30 +24231,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -583,7 +591,7 @@ index f69b2c7924..f2437a4157 100644
  "jsurl@npm:^0.1.5":
    version: 0.1.5
    resolution: "jsurl@npm:0.1.5"
-@@ -24549,17 +24173,6 @@ __metadata:
+@@ -25645,17 +25269,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -601,7 +609,7 @@ index f69b2c7924..f2437a4157 100644
  "mdast-squeeze-paragraphs@npm:^4.0.0":
    version: 4.0.0
    resolution: "mdast-squeeze-paragraphs@npm:4.0.0"
-@@ -24829,18 +24442,6 @@ __metadata:
+@@ -25925,18 +25538,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -620,7 +628,7 @@ index f69b2c7924..f2437a4157 100644
  "mime-db@npm:1.50.0, mime-db@npm:>= 1.43.0 < 2":
    version: 1.50.0
    resolution: "mime-db@npm:1.50.0"
-@@ -24959,20 +24560,13 @@ __metadata:
+@@ -26087,20 +25688,13 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -639,24 +647,24 @@ index f69b2c7924..f2437a4157 100644
 -  languageName: node
 -  linkType: hard
 -
- "minimatch@npm:3.0.4, minimatch@npm:^3.0.2, minimatch@npm:^3.0.4":
+ "minimatch@npm:3.0.4, minimatch@npm:^3.0.4":
    version: 3.0.4
    resolution: "minimatch@npm:3.0.4"
-@@ -25586,13 +25180,6 @@ __metadata:
+@@ -26751,13 +26345,6 @@ __metadata:
    languageName: node
    linkType: hard
  
--"node-forge@npm:^0.10.0":
--  version: 0.10.0
--  resolution: "node-forge@npm:0.10.0"
--  checksum: 5aa6dc9922e424a20ef101d2f517418e2bc9cfc0255dd22e0701c0fad1568445f510ee67f6f3fcdf085812c4ca1b847b8ba45683b34776828e41f5c1794e42e1
+-"node-forge@npm:^1.2.0":
+-  version: 1.3.0
+-  resolution: "node-forge@npm:1.3.0"
+-  checksum: 3d8124168dd82006fafbb079f40a529afa0de5bf4d77e6a5a471877e9d39bece31fdc8339e8aee30d5480dc79ffcd1059cfcb21983d350dd3f2a9f226db6ca85
 -  languageName: node
 -  linkType: hard
 -
  "node-gettext@npm:^3.0.0":
    version: 3.0.0
    resolution: "node-gettext@npm:3.0.0"
-@@ -26764,19 +26351,6 @@ __metadata:
+@@ -27936,19 +27523,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -676,7 +684,7 @@ index f69b2c7924..f2437a4157 100644
  "parse-entities@npm:^2.0.0":
    version: 2.0.0
    resolution: "parse-entities@npm:2.0.0"
-@@ -26998,19 +26572,6 @@ __metadata:
+@@ -28177,19 +27751,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -696,7 +704,7 @@ index f69b2c7924..f2437a4157 100644
  "pend@npm:~1.2.0":
    version: 1.2.0
    resolution: "pend@npm:1.2.0"
-@@ -28752,20 +28313,6 @@ __metadata:
+@@ -29976,20 +29537,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -717,7 +725,7 @@ index f69b2c7924..f2437a4157 100644
  "pump@npm:^2.0.0":
    version: 2.0.1
    resolution: "pump@npm:2.0.1"
-@@ -28968,7 +28515,7 @@ __metadata:
+@@ -30201,7 +29748,7 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -726,7 +734,7 @@ index f69b2c7924..f2437a4157 100644
    version: 2.1.0
    resolution: "randombytes@npm:2.1.0"
    dependencies:
-@@ -28977,16 +28524,6 @@ __metadata:
+@@ -30210,16 +29757,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -743,7 +751,7 @@ index f69b2c7924..f2437a4157 100644
  "range-parser@npm:^1.2.1, range-parser@npm:~1.2.1":
    version: 1.2.1
    resolution: "range-parser@npm:1.2.1"
-@@ -31133,16 +30670,6 @@ __metadata:
+@@ -32451,16 +31988,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -760,7 +768,7 @@ index f69b2c7924..f2437a4157 100644
  "rollup-plugin-copy@npm:3.4.0":
    version: 3.4.0
    resolution: "rollup-plugin-copy@npm:3.4.0"
-@@ -31317,7 +30844,7 @@ __metadata:
+@@ -32635,7 +32162,7 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -769,7 +777,7 @@ index f69b2c7924..f2437a4157 100644
    version: 5.2.1
    resolution: "safe-buffer@npm:5.2.1"
    checksum: b99c4b41fdd67a6aaf280fcd05e9ffb0813654894223afb78a31f14a19ad220bba8aba1cb14eddce1fcfb037155fe6de4e861784eb434f7d11ed58d1e70dd491
-@@ -31333,7 +30860,7 @@ __metadata:
+@@ -32651,7 +32178,7 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -778,16 +786,16 @@ index f69b2c7924..f2437a4157 100644
    version: 2.1.2
    resolution: "safer-buffer@npm:2.1.2"
    checksum: cab8f25ae6f1434abee8d80023d7e72b598cf1327164ddab31003c51215526801e40b66c5e65d658a0af1e9d6478cadcb4c745f4bd6751f97d8644786c0978b0
-@@ -31567,12 +31094,10 @@ __metadata:
+@@ -32888,12 +32415,10 @@ __metadata:
    languageName: node
    linkType: hard
  
--"selfsigned@npm:^1.10.11":
--  version: 1.10.11
--  resolution: "selfsigned@npm:1.10.11"
+-"selfsigned@npm:^2.0.0":
+-  version: 2.0.0
+-  resolution: "selfsigned@npm:2.0.0"
 -  dependencies:
--    node-forge: ^0.10.0
--  checksum: 1fd8fd317dc0b7d713d12d828131ac03c53abf41c4538b263fecd37bbc15688526c631654049ff00806b757ccb85492de6a13d6fefcad5cb54926631e48a76e1
+-    node-forge: ^1.2.0
+-  checksum: 43fca39a5aded2a8e97c1756af74c049a9dde12d47d302820f7d507d25c2ad7da4b04bc439a36620d63b4c0149bcf34ae7a729f978bf3b1bf48859c36ae34cee
 +"selfsigned@https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.3.tgz":
 +  version: 1.1.3
 +  resolution: "selfsigned@https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.3.tgz"
@@ -795,7 +803,7 @@ index f69b2c7924..f2437a4157 100644
    languageName: node
    linkType: hard
  
-@@ -31767,18 +31292,6 @@ __metadata:
+@@ -33088,18 +32613,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -814,7 +822,7 @@ index f69b2c7924..f2437a4157 100644
  "shallow-clone@npm:^3.0.0":
    version: 3.0.1
    resolution: "shallow-clone@npm:3.0.1"
-@@ -32425,27 +31938,6 @@ __metadata:
+@@ -33781,27 +33294,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -842,7 +850,7 @@ index f69b2c7924..f2437a4157 100644
  "ssri@npm:^6.0.1":
    version: 6.0.2
    resolution: "ssri@npm:6.0.2"
-@@ -34240,13 +33732,6 @@ __metadata:
+@@ -35627,13 +35119,6 @@ __metadata:
    languageName: node
    linkType: hard
  
@@ -856,7 +864,7 @@ index f69b2c7924..f2437a4157 100644
  "type-check@npm:^0.4.0, type-check@npm:~0.4.0":
    version: 0.4.0
    resolution: "type-check@npm:0.4.0"
-@@ -35132,17 +34617,6 @@ __metadata:
+@@ -36562,17 +36047,6 @@ __metadata:
    languageName: node
    linkType: hard
  

@@ -1,5 +1,12 @@
+From 2146840556f18c8ca6ad5ee293af1c8a538d8e66 Mon Sep 17 00:00:00 2001
+From: Andreas Gerstmayr <agerstmayr@redhat.com>
+Date: Wed, 22 Jun 2022 16:57:52 +0200
+Subject: [PATCH] update grafana-cli script with distro-specific paths and
+ switch to grafana user
+
+
 diff --git a/packaging/wrappers/grafana-cli b/packaging/wrappers/grafana-cli
-index dafa075a2c..d2760363fe 100755
+index dafa075a2c..6d32aeff74 100755
 --- a/packaging/wrappers/grafana-cli
 +++ b/packaging/wrappers/grafana-cli
 @@ -5,18 +5,19 @@

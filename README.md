@@ -14,6 +14,7 @@ The grafana package
 * commit new `sources` file
 
 ## Patches
+`git format-patch -N --no-stat --no-signature <commit>`
 * create the patch
 * declare and apply (`%prep`) the patch in the specfile
 * if the patch affects Go or Node.js dependencies, or the webpack
@@ -33,6 +34,11 @@ Patches fall in several categories:
 
 Patches cannot be applied twice.
 It is not possible to unconditionally apply all patches in the Makefile, and great care must be taken to include the required patches at the correct stage of the build.
+
+## Reproducible Bundles
+Run `./create_bundles_in_container.sh` to generate a reproducible vendor and webpack bundle.
+Alternatively, install the same software as in the container, create a bind mount from `/tmp/grafana-build` to the directory of this repository, and run `make`.
+The bind mount is required because Webpack stores absolute paths in the JS source maps, and also resolves symlinks (i.e. symlinking `/tmp/grafana-build` doesn't work).
 
 ## Verification
 * compare the list of files with the upstream RPM at https://grafana.com/grafana/download
