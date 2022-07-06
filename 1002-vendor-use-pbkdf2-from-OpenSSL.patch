@@ -1,7 +1,4 @@
-From 881b4f6789d4d207f9dff01929e094e69d59aeaa Mon Sep 17 00:00:00 2001
-From: Andreas Gerstmayr <agerstmayr@redhat.com>
-Date: Wed, 22 Jun 2022 17:47:00 +0200
-Subject: [PATCH] FIPS
+use pbkdf2 from OpenSSL if FIPS mode is enabled
 
 This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
 if FIPS mode is enabled.

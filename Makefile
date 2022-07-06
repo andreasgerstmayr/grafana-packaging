@@ -14,14 +14,14 @@ WEBPACK_TAR := $(RPM_NAME)-webpack-$(VERSION)-$(RELEASE).tar.gz
 # - changes in dependency versions
 # - changes in Go module imports (which affect the vendored Go modules)
 PATCHES_PRE_VENDOR := \
-	0005-remove-unused-backend-dependencies.patch \
-	0006-remove-unused-frontend-crypto.patch \
-	0010-disable-husky-git-hook.patch \
+	0004-remove-unused-backend-dependencies.patch \
+	0005-remove-unused-frontend-crypto.patch \
+	0007-disable-husky-git-hook.patch \
 
 # patches which must be applied before creating the webpack, for example:
 # - changes in Node.js sources or vendored dependencies
 PATCHES_PRE_WEBPACK := \
-	0006-remove-unused-frontend-crypto.patch \
+	0005-remove-unused-frontend-crypto.patch \
 
 
 all: $(SOURCE_TAR) $(VENDOR_TAR) $(WEBPACK_TAR)
@@ -42,12 +42,12 @@ $(VENDOR_TAR): $(SOURCE_TAR)
 	# Generate Go files
 	cd $(SOURCE_DIR) && make gen-go
 	# Remove unused crypto
-	rm $(SOURCE_DIR)/vendor/golang.org/x/crypto/cast5/cast5.go
-	rm $(SOURCE_DIR)/vendor/golang.org/x/crypto/ed25519/ed25519.go
-	rm $(SOURCE_DIR)/vendor/golang.org/x/crypto/ed25519/internal/edwards25519/const.go
-	rm $(SOURCE_DIR)/vendor/golang.org/x/crypto/ed25519/internal/edwards25519/edwards25519.go
-	rm $(SOURCE_DIR)/vendor/golang.org/x/crypto/openpgp/elgamal/elgamal.go
-	rm $(SOURCE_DIR)/vendor/golang.org/x/crypto/openpgp/packet/ocfb.go
+	rm -r $(SOURCE_DIR)/vendor/golang.org/x/crypto/bcrypt
+	rm -r $(SOURCE_DIR)/vendor/golang.org/x/crypto/blowfish
+	rm -r $(SOURCE_DIR)/vendor/golang.org/x/crypto/cast5
+	rm -r $(SOURCE_DIR)/vendor/golang.org/x/crypto/openpgp/elgamal
+	rm    $(SOURCE_DIR)/vendor/golang.org/x/crypto/openpgp/packet/ocfb.go
+	rm -r $(SOURCE_DIR)/vendor/golang.org/x/crypto/pkcs12/internal/rc2
 	awk '$$2~/^v/ && $$4 != "indirect" {print "Provides: bundled(golang(" $$1 ")) = " substr($$2, 2)}' $(SOURCE_DIR)/go.mod | \
 		sed -E 's/=(.*)-(.*)-(.*)/=\1-\2.\3/g' > $@.manifest
 
@@ -94,6 +94,7 @@ $(WEBPACK_TAR): $(VENDOR_TAR)
 		$(SOURCE_DIR)/public/build \
 		$(SOURCE_DIR)/public/img \
 		$(SOURCE_DIR)/public/lib \
+		$(SOURCE_DIR)/public/locales \
 		$(SOURCE_DIR)/public/views
 
 clean:

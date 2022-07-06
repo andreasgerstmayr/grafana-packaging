@@ -3,19 +3,22 @@ The grafana package
 
 ## Setup instructions
 * clone the upstream sources: `git clone https://github.com/grafana/grafana && cd grafana`
-* checkout the desired version (tag): `git checkout vX.Y.Z`
-* run: `go mod vendor && git add -f vendor && git commit -m vendor` (this step is required because some patches modify vendor sources)
-* apply existing patches: `git am ../*.patch` and resolve any errors
-* create new patches from the modified git commits: `git format-patch -N --no-stat --no-signature <commit-hash-of-vendor-commit>`
+* checkout the version of the specfile: `git checkout <currentversion>`
+* apply existing patches: `git am ../0*.patch`
 
 ## Upgrade instructions
-* follow the Setup instructions above with the new upstream version
+* follow the Setup instructions above
+* rebase to the new version: `git fetch && git rebase --onto <newversion> <oldversion>`
+  * rebasing `remove-unused-backend-dependencies.patch`: only apply the patch to `pkg/extensions/main.go` and run `go mod tidy`, then `go.mod` and `go.sum` will get updated automatically
+  * rebasing `remove-unused-frontend-crypto.patch`: only apply the patch to `package.json` and run `yarn install`, then `yarn.lock` will get updated automatically
+* create new patches from the modified git commits: `git format-patch -N --no-stat --no-signature <newversion> && mv *.patch ..`
 * update `Version`, `Release`, `%changelog` and tarball NVRs in the specfile
-* create bundles and manifest: `make clean all`
+* create bundles and manifest: `./create_bundles_in_container.sh`
+* inspect the vendor tarball for any new non-FIPS crypto (`vendor/golang.org/x/crypto`), delete these files/directories in the Makefile and update the `patch-removed-backend-crypto.patch` if required
 * update specfile with contents of the `.manifest` file
 * update the manpages patch in `0002-add-manpages.patch` and other patches if required
 * run local build: `rpkg local`
-* run rpm linter: `rpkg lint -r grafana.rpmlintrc`
+* run rpmlint: `rpmlint -r grafana.rpmlintrc /tmp/rpkg/grafana-*/grafana-*.src.rpm /tmp/rpkg/grafana-*/x86_64/grafana-*.x86_64.rpm`
 * run a scratch build: `fedpkg scratch-build --srpm`
 * upload new source tarballs: `fedpkg new-sources *.tar.gz *.tar.xz`
 * commit new `sources` file
@@ -43,8 +46,6 @@ It is not possible to unconditionally apply all patches in the Makefile, and gre
 
 ## Reproducible Bundles
 Run `./create_bundles_in_container.sh` to generate a reproducible vendor and webpack bundle.
-Alternatively, install the same software as in the container, create a bind mount from `/tmp/grafana-build` to the directory of this repository, and run `make`.
-The bind mount is required because Webpack stores absolute paths in the JS source maps, and also resolves symlinks (i.e. symlinking `/tmp/grafana-build` doesn't work).
 
 ## Verification
 * compare the list of files with the upstream RPM at https://grafana.com/grafana/download
