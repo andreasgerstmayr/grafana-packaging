@@ -22,7 +22,7 @@ end}
 
 Name:             grafana
 Version:          9.0.2
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -42,17 +42,20 @@ Source1:          grafana-vendor-%{version}-1.tar.xz
 Source2:          grafana-webpack-%{version}-1.tar.gz
 %endif
 
-# Source3 contains the Makefile to create the vendor and webpack bundles
-Source3:          Makefile
+# Source3 contains the systemd-sysusers configuration
+Source3:          grafana.sysusers
 
-# Source4 contains the script to build the frontend
-Source4:          build_frontend.sh
+# Source4 contains the Makefile to create the vendor and webpack bundles
+Source4:          Makefile
 
-# Source5 contains the script to generate the list of bundled nodejs packages
-Source5:          list_bundled_nodejs_packages.py
+# Source5 contains the script to build the frontend
+Source5:          build_frontend.sh
 
-# Source6 contains the script to create the vendor and webpack bundles in a container
-Source6:          create_bundles_in_container.sh
+# Source6 contains the script to generate the list of bundled nodejs packages
+Source6:          list_bundled_nodejs_packages.py
+
+# Source7 contains the script to create the vendor and webpack bundles in a container
+Source7:          create_bundles_in_container.sh
 
 # Patches affecting the source tarball
 Patch1:           0001-update-grafana-cli-script-with-distro-specific-paths.patch
@@ -77,6 +80,7 @@ Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
 ExclusiveArch:    %{grafana_arches}
 
 BuildRequires:    systemd
+BuildRequires:    systemd-rpm-macros
 BuildRequires:    golang >= 1.17
 BuildRequires:    go-srpm-macros
 %if 0%{?fedora} >= 31
@@ -94,7 +98,6 @@ BuildRequires:    openssl-devel
 
 %global           GRAFANA_USER %{name}
 %global           GRAFANA_GROUP %{name}
-%global           GRAFANA_HOME %{_datadir}/%{name}
 
 # grafana-server service daemon uses systemd
 %{?systemd_requires}
@@ -718,7 +721,7 @@ rm -r plugins-bundled
 %build
 # Build the frontend
 %if %{compile_frontend}
-%{SOURCE4}
+%{SOURCE5}
 %endif
 
 # Build the backend
@@ -785,12 +788,11 @@ install -d %{buildroot}%{_tmpfilesdir}
 echo "d %{_rundir}/%{name} 0755 %{GRAFANA_USER} %{GRAFANA_GROUP} -" \
     > %{buildroot}%{_tmpfilesdir}/%{name}.conf
 
+# systemd-sysusers configuration
+install -p -m 644 -D %{SOURCE3} %{buildroot}%{_sysusersdir}/%{name}.conf
+
 %pre
-getent group %{GRAFANA_GROUP} >/dev/null || groupadd -r %{GRAFANA_GROUP}
-getent passwd %{GRAFANA_USER} >/dev/null || \
-    useradd -r -g %{GRAFANA_GROUP} -d %{GRAFANA_HOME} -s /sbin/nologin \
-    -c "%{GRAFANA_USER} user account" %{GRAFANA_USER}
-exit 0
+%sysusers_create_compat %{SOURCE3}
 
 %preun
 %systemd_preun grafana-server.service
@@ -873,6 +875,9 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 # Grafana configuration to dynamically create /run/grafana/grafana.pid on tmpfs
 %{_tmpfilesdir}/%{name}.conf
 
+# systemd-sysusers configuration file
+%{_sysusersdir}/%{name}.conf
+
 # log directory - grafana.log is created by grafana-server, and it does it's own log rotation
 %attr(0755, %{GRAFANA_USER}, %{GRAFANA_GROUP}) %dir %{_localstatedir}/log/%{name}
 
@@ -887,6 +892,9 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Wed Jul 13 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 9.0.2-2
+- use systemd-sysusers to create the Grafana user and group
+
 * Thu Jul 07 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 9.0.2-1
 - update to 9.0.2 tagged upstream community sources, see CHANGELOG
 
