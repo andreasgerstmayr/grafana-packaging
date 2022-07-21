@@ -22,7 +22,7 @@ end}
 
 Name:             grafana
 Version:          9.0.2
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -892,6 +892,9 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 9.0.2-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
+
 * Thu Jul 14 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 9.0.2-3
 - fix quoting in grafana-cli wrapper script (rhbz#2107046)
 
