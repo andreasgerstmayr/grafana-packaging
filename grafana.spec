@@ -19,10 +19,11 @@
 end}
 
 %global gomodulesmode GO111MODULE=auto
+%global gotestflags   %{gotestflags} -tags=integration
 
 Name:             grafana
-Version:          9.0.2
-Release:          4%{?dist}
+Version:          9.0.5
+Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -83,9 +84,7 @@ BuildRequires:    systemd
 BuildRequires:    systemd-rpm-macros
 BuildRequires:    golang >= 1.17
 BuildRequires:    go-srpm-macros
-%if 0%{?fedora} >= 31
 BuildRequires:    go-rpm-macros
-%endif
 
 %if %{compile_frontend}
 BuildRequires:    nodejs >= 1:16
@@ -159,6 +158,7 @@ Provides: bundled(golang(github.com/dop251/goja)) = 0.0.0-20210804101310.32956a3
 Provides: bundled(golang(github.com/fatih/color)) = 1.13.0
 Provides: bundled(golang(github.com/gchaincl/sqlhooks)) = 1.3.0
 Provides: bundled(golang(github.com/getsentry/sentry-go)) = 0.13.0
+Provides: bundled(golang(github.com/go-kit/kit)) = 0.11.0
 Provides: bundled(golang(github.com/go-openapi/strfmt)) = 0.20.2
 Provides: bundled(golang(github.com/go-redis/redis/v8)) = 8.11.4
 Provides: bundled(golang(github.com/go-sourcemap/sourcemap)) = 2.1.3+incompatible
@@ -176,7 +176,7 @@ Provides: bundled(golang(github.com/gorilla/websocket)) = 1.4.2
 Provides: bundled(golang(github.com/gosimple/slug)) = 1.9.0
 Provides: bundled(golang(github.com/grafana/cuetsy)) = 0.0.1
 Provides: bundled(golang(github.com/grafana/grafana-aws-sdk)) = 0.10.7
-Provides: bundled(golang(github.com/grafana/grafana-azure-sdk-go)) = 1.2.0
+Provides: bundled(golang(github.com/grafana/grafana-azure-sdk-go)) = 1.3.0
 Provides: bundled(golang(github.com/grafana/grafana-plugin-sdk-go)) = 0.138.0
 Provides: bundled(golang(github.com/grafana/loki)) = 1.6.2-0.20211015002020.7832783b1caa
 Provides: bundled(golang(github.com/grpc-ecosystem/go-grpc-middleware)) = 1.3.0
@@ -664,7 +664,7 @@ Provides: bundled(npm(ts-node)) = 9.1.1
 Provides: bundled(npm(tslib)) = 1.14.1
 Provides: bundled(npm(tween-functions)) = 1.2.0
 Provides: bundled(npm(typescript)) = 4.5.5
-Provides: bundled(npm(uplot)) = 1.6.21
+Provides: bundled(npm(uplot)) = 1.6.22
 Provides: bundled(npm(url-loader)) = 4.1.1
 Provides: bundled(npm(uuid)) = 3.4.0
 Provides: bundled(npm(vendor)) = 0.0.0-use.local
@@ -892,6 +892,13 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Wed Jul 27 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 9.0.5-1
+- update to 9.0.5 tagged upstream community sources, see CHANGELOG  (rhbz#2107413)
+- run integration tests in check phase
+- remove conditional around go-rpm-macros
+- resolve CVE-2022-31107 grafana: OAuth account takeover (rhbz#2107435)
+- resolve CVE-2022-31097 grafana: stored XSS vulnerability (rhbz#2107436)
+
 * Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 9.0.2-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
 

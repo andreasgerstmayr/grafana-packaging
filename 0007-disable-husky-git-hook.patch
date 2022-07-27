@@ -1,11 +1,11 @@
-From 41629934d99471b8392dc649bf7338ad6405de56 Mon Sep 17 00:00:00 2001
+From fcea701c10eda55164580edceeecb9fbb43c8e90 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 18:29:42 +0200
 Subject: [PATCH] disable husky git hook
 
 
 diff --git a/package.json b/package.json
-index 195dcd4756..97b8988ffe 100644
+index 9c2e666bf2..a00cc73167 100644
 --- a/package.json
 +++ b/package.json
 @@ -52,7 +52,6 @@

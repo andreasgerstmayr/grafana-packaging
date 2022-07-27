@@ -1,4 +1,4 @@
-From 12da643fe5c9ff99a7d5ee439026be50a320eef5 Mon Sep 17 00:00:00 2001
+From 4e98684081dff58ff4159e7c4af46227c85b77c6 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 17:05:48 +0200
 Subject: [PATCH] update default configuration

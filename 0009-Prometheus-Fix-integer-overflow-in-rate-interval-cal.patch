@@ -1,4 +1,4 @@
-From fda7918ed1718ec3e6602613fad25ab1435a1b47 Mon Sep 17 00:00:00 2001
+From bcb0dae049ae5684762bf46fbee68e915fffca99 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Mon, 27 Jun 2022 17:12:27 +0200
 Subject: [PATCH] Prometheus: Fix integer overflow in rate interval calculation
