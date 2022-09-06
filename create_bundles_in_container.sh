@@ -14,9 +14,6 @@ RUN dnf upgrade -y && \
 # https://groups.google.com/g/golang-nuts/c/MVtHZUtZru4
 ENV GOPROXY=https://proxy.golang.org,direct
 
-# Webpack needs more than the default 4GB RAM
-ENV NODE_OPTIONS=--max_old_space_size=6144
-
 WORKDIR /tmp/grafana-build
 COPY Makefile grafana.spec *.patch build_frontend.sh list_bundled_nodejs_packages.py .
 RUN mkdir bundles

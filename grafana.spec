@@ -827,7 +827,7 @@ chmod 640 %{_sysconfdir}/%{name}/ldap.toml
 %check
 # Test frontend
 %if %{compile_frontend}
-node_modules/.bin/jest
+yarn run jest
 %endif
 
 # Test backend
