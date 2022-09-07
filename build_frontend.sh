@@ -1,10 +1,7 @@
 #!/bin/bash -eu
 
-# Webpack needs more than the default 4GB RAM, and
-# the OpenSSL legacy provider (https://github.com/webpack/webpack/issues/14532).
-# The legacy provider can be removed once https://github.com/grafana/grafana/pull/53088
-# is released
-export NODE_OPTIONS="--max_old_space_size=6144 --openssl-legacy-provider"
+# Webpack needs more than the default 4GB RAM
+export NODE_OPTIONS="${NODE_OPTIONS:-} --max_old_space_size=6144"
 
 # Build the frontend
 yarn run build

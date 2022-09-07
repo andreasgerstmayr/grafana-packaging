@@ -2,7 +2,7 @@
 #
 # create vendor and webpack bundles inside a container for reproducibility
 # using a Go cache:
-#   ./create_bundles_in_container.sh -v $(pwd)/.gocache:/root/go:z
+#   ./create_bundles_in_container.sh --security-opt label=disable -v $(pwd)/.gocache:/root/go
 #
 
 cat <<EOF | podman build -t grafana-build -f - .
