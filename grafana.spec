@@ -110,30 +110,30 @@ Requires:         shared-mime-info
 Recommends: grafana-pcp
 %endif
 
-Obsoletes:        grafana-cloudwatch < 7.1.1-1
-Obsoletes:        grafana-elasticsearch < 7.1.1-1
-Obsoletes:        grafana-azure-monitor < 7.1.1-1
-Obsoletes:        grafana-graphite < 7.1.1-1
-Obsoletes:        grafana-influxdb < 7.1.1-1
-Obsoletes:        grafana-loki < 7.1.1-1
-Obsoletes:        grafana-mssql < 7.1.1-1
-Obsoletes:        grafana-mysql < 7.1.1-1
-Obsoletes:        grafana-opentsdb < 7.1.1-1
-Obsoletes:        grafana-postgres < 7.1.1-1
-Obsoletes:        grafana-prometheus < 7.1.1-1
-Obsoletes:        grafana-stackdriver < 7.1.1-1
-Provides:         grafana-cloudwatch = 7.1.1-1
-Provides:         grafana-elasticsearch = 7.1.1-1
-Provides:         grafana-azure-monitor = 7.1.1-1
-Provides:         grafana-graphite = 7.1.1-1
-Provides:         grafana-influxdb = 7.1.1-1
-Provides:         grafana-loki = 7.1.1-1
-Provides:         grafana-mssql = 7.1.1-1
-Provides:         grafana-mysql = 7.1.1-1
-Provides:         grafana-opentsdb = 7.1.1-1
-Provides:         grafana-postgres = 7.1.1-1
-Provides:         grafana-prometheus = 7.1.1-1
-Provides:         grafana-stackdriver = 7.1.1-1
+Obsoletes:        grafana-cloudwatch < 7.3.6-1
+Obsoletes:        grafana-elasticsearch < 7.3.6-1
+Obsoletes:        grafana-azure-monitor < 7.3.6-1
+Obsoletes:        grafana-graphite < 7.3.6-1
+Obsoletes:        grafana-influxdb < 7.3.6-1
+Obsoletes:        grafana-loki < 7.3.6-1
+Obsoletes:        grafana-mssql < 7.3.6-1
+Obsoletes:        grafana-mysql < 7.3.6-1
+Obsoletes:        grafana-opentsdb < 7.3.6-1
+Obsoletes:        grafana-postgres < 7.3.6-1
+Obsoletes:        grafana-prometheus < 7.3.6-1
+Obsoletes:        grafana-stackdriver < 7.3.6-1
+Provides:         grafana-cloudwatch = 7.3.6-1
+Provides:         grafana-elasticsearch = 7.3.6-1
+Provides:         grafana-azure-monitor = 7.3.6-1
+Provides:         grafana-graphite = 7.3.6-1
+Provides:         grafana-influxdb = 7.3.6-1
+Provides:         grafana-loki = 7.3.6-1
+Provides:         grafana-mssql = 7.3.6-1
+Provides:         grafana-mysql = 7.3.6-1
+Provides:         grafana-opentsdb = 7.3.6-1
+Provides:         grafana-postgres = 7.3.6-1
+Provides:         grafana-prometheus = 7.3.6-1
+Provides:         grafana-stackdriver = 7.3.6-1
 
 # vendored golang and node.js build dependencies
 # this is for security purposes, if nodejs-foo ever needs an update,
