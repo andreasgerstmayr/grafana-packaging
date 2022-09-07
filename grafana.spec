@@ -867,7 +867,6 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 # shared directory and all files therein
 %{_datadir}/%{name}
-%attr(-, root, %{GRAFANA_GROUP}) %{_datadir}/%{name}/conf/*
 
 # systemd service file
 %{_unitdir}/grafana-server.service
