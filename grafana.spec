@@ -46,8 +46,8 @@ Source2:          grafana-webpack-%{version}-1.tar.gz
 # Source3 contains the systemd-sysusers configuration
 Source3:          grafana.sysusers
 
-# Source4 contains the Makefile to create the vendor and webpack bundles
-Source4:          Makefile
+# Source4 contains the script to create the vendor and webpack bundles
+Source4:          create_bundles.sh
 
 # Source5 contains the script to build the frontend
 Source5:          build_frontend.sh
@@ -66,7 +66,6 @@ Patch4:           0004-remove-unused-backend-dependencies.patch
 Patch5:           0005-remove-unused-frontend-crypto.patch
 # https://github.com/grafana/grafana/pull/42334
 Patch6:           0006-notifications-use-HMAC-SHA256-to-generate-password-r.patch
-Patch7:           0007-disable-husky-git-hook.patch
 Patch8:           0008-skip-marketplace-plugin-install-test.patch
 # https://github.com/grafana/grafana/pull/51508
 Patch9:           0009-Prometheus-Fix-integer-overflow-in-rate-interval-cal.patch
@@ -704,7 +703,6 @@ rm -r plugins-bundled
 %if 0%{?fedora} || 0%{?rhel} > 8
 %patch6 -p1
 %endif
-%patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
@@ -726,7 +724,7 @@ rm -r plugins-bundled
 
 # Build the backend
 
-# see grafana-X.X.X/build.go
+# see grafana-X.Y.Z/pkg/build/cmd.go
 export LDFLAGS="-X main.version=%{version} -X main.buildstamp=${SOURCE_DATE_EPOCH}"
 for cmd in grafana-cli grafana-server; do
     %gobuild -o %{_builddir}/bin/${cmd} ./pkg/cmd/${cmd}
@@ -833,7 +831,7 @@ yarn run jest
 # Test backend
 
 # in setting_test.go there is a unit test which checks if 10 days are 240 hours
-# which is usually true except if the dayligt saving time change falls into the last 10 days, then it's either 239 or 241 hours...
+# which is usually true except if the daylight saving time change falls into the last 10 days, then it's either 239 or 241 hours...
 # let's set the time zone to a time zone without daylight saving time
 export TZ=GMT
 

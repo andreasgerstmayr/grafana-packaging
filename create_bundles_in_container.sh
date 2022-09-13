@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 #
-# create vendor and webpack bundles inside a container for reproducibility
+# create vendor and webpack bundles inside a container (for reproducibility)
 # using a Go cache:
 #   ./create_bundles_in_container.sh --security-opt label=disable -v $(pwd)/.gocache:/root/go
 #
@@ -15,9 +15,9 @@ RUN dnf upgrade -y && \
 ENV GOPROXY=https://proxy.golang.org,direct
 
 WORKDIR /tmp/grafana-build
-COPY Makefile grafana.spec *.patch build_frontend.sh list_bundled_nodejs_packages.py .
+COPY grafana.spec create_bundles.sh build_frontend.sh list_bundled_nodejs_packages.py *.patch .
 RUN mkdir bundles
-CMD make && mv *.tar.* bundles
+CMD ./create_bundles.sh && mv *.tar.* bundles
 EOF
 
 podman run --name grafana-build --replace "$@" grafana-build
