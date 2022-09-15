@@ -22,7 +22,7 @@ end}
 %global gotestflags   %{gotestflags} -tags=integration
 
 Name:             grafana
-Version:          9.0.5
+Version:          9.0.8
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
@@ -552,7 +552,7 @@ Provides: bundled(npm(memoize-one)) = 4.0.3
 Provides: bundled(npm(mini-css-extract-plugin)) = 2.6.0
 Provides: bundled(npm(mocha)) = 10.0.0
 Provides: bundled(npm(mock-raf)) = 1.0.1
-Provides: bundled(npm(moment)) = 2.29.3
+Provides: bundled(npm(moment)) = 2.29.4
 Provides: bundled(npm(moment-timezone)) = 0.5.34
 Provides: bundled(npm(monaco-editor)) = 0.31.1
 Provides: bundled(npm(monaco-promql)) = 1.7.4
@@ -889,8 +889,15 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Thu Sep 15 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 9.0.8-1
+- update to 9.0.8 tagged upstream community sources, see CHANGELOG
+- do not list /usr/share/grafana/conf twice
+- drop makefile in favor of create_bundles.sh script
+- sync provides/obsoletes with CentOS versions
+- drop husky patch
+
 * Wed Jul 27 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 9.0.5-1
-- update to 9.0.5 tagged upstream community sources, see CHANGELOG  (rhbz#2107413)
+- update to 9.0.5 tagged upstream community sources, see CHANGELOG (rhbz#2107413)
 - run integration tests in check phase
 - remove conditional around go-rpm-macros
 - resolve CVE-2022-31107 grafana: OAuth account takeover (rhbz#2107435)

@@ -10,7 +10,7 @@ index 0000000000..081d35bfae
 --- /dev/null
 +++ b/docs/man/man1/grafana-cli.1
 @@ -0,0 +1,63 @@
-+.TH GRAFANA "1" "July 2022" "Grafana cli version 9.0.5" "User Commands"
++.TH GRAFANA "1" "September 2022" "Grafana cli version 9.0.8" "User Commands"
 +.SH NAME
 +grafana-cli \- command line administration for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -79,7 +79,7 @@ index 0000000000..a10acbb253
 --- /dev/null
 +++ b/docs/man/man1/grafana-server.1
 @@ -0,0 +1,80 @@
-+.TH VERSION "1" "July 2022" "Version 9.0.5" "User Commands"
++.TH VERSION "1" "September 2022" "Version 9.0.8" "User Commands"
 +.SH NAME
 +grafana-server \- back-end server for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -103,7 +103,7 @@ index 0000000000..a10acbb253
 +.P
 +.SH OPTIONS
 +The
-+.B gafana-server
++.B grafana-server
 +configuration is specified in
 +.BR /etc/grafana/grafana.ini
 +and is well documented with comments.

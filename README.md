@@ -27,7 +27,7 @@ The grafana package
 * create the patch
 * declare and apply (`%prep`) the patch in the specfile
 * if the patch affects Go or Node.js dependencies, or the webpack
-  * add the patch to `PATCHES_PRE_VENDOR` or `PATCHES_PRE_WEBPACK` in the Makefile
+  * update the `create_bundles.sh` script and apply the patch
   * create new tarballs
   * update the specfile with new tarball name and contents of the `.manifest` file
 
