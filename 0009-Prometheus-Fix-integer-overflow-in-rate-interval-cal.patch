@@ -1,15 +1,15 @@
-From bcb0dae049ae5684762bf46fbee68e915fffca99 Mon Sep 17 00:00:00 2001
+From 9c3f27a440c515c3b8949c981a58666c7de3c8bc Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
-Date: Mon, 27 Jun 2022 17:12:27 +0200
+Date: Tue, 5 Jul 2022 17:04:13 +0200
 Subject: [PATCH] Prometheus: Fix integer overflow in rate interval calculation
- on 32-bit architectures
+ on 32-bit architectures 2
 
 
-diff --git a/pkg/tsdb/prometheus/buffered/time_series_query.go b/pkg/tsdb/prometheus/buffered/time_series_query.go
-index 40db2d9100..0af2d3ecab 100644
---- a/pkg/tsdb/prometheus/buffered/time_series_query.go
-+++ b/pkg/tsdb/prometheus/buffered/time_series_query.go
-@@ -326,7 +326,7 @@ func calculateRateInterval(interval time.Duration, scrapeInterval string, interv
+diff --git a/pkg/tsdb/prometheus/models/query.go b/pkg/tsdb/prometheus/models/query.go
+index bdd48d08ed..aa2b1f9945 100644
+--- a/pkg/tsdb/prometheus/models/query.go
++++ b/pkg/tsdb/prometheus/models/query.go
+@@ -181,7 +181,7 @@ func calculateRateInterval(interval time.Duration, scrapeInterval string, interv
  		return time.Duration(0)
  	}
  

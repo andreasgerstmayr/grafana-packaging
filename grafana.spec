@@ -22,7 +22,7 @@ end}
 %global gotestflags   %{gotestflags} -tags=integration
 
 Name:             grafana
-Version:          9.0.8
+Version:          9.0.9
 Release:          1%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
@@ -66,10 +66,10 @@ Patch4:           0004-remove-unused-backend-dependencies.patch
 Patch5:           0005-remove-unused-frontend-crypto.patch
 # https://github.com/grafana/grafana/pull/42334
 Patch6:           0006-notifications-use-HMAC-SHA256-to-generate-password-r.patch
-Patch8:           0008-skip-marketplace-plugin-install-test.patch
+Patch7:           0007-skip-marketplace-plugin-install-test.patch
 # https://github.com/grafana/grafana/pull/51508
+Patch8:           0008-Prometheus-Fix-integer-overflow-in-rate-interval-cal.patch
 Patch9:           0009-Prometheus-Fix-integer-overflow-in-rate-interval-cal.patch
-Patch10:          0010-Prometheus-Fix-integer-overflow-in-rate-interval-cal.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -297,7 +297,6 @@ Provides: bundled(npm(@grafana/google-sdk)) = 0.0.3
 Provides: bundled(npm(@grafana/lezer-logql)) = 0.0.12
 Provides: bundled(npm(@grafana/runtime)) = 0.0.0-use.local
 Provides: bundled(npm(@grafana/schema)) = 0.0.0-use.local
-Provides: bundled(npm(@grafana/slate-react)) = 0.22.10-grafana
 Provides: bundled(npm(@grafana/toolkit)) = 0.0.0-use.local
 Provides: bundled(npm(@grafana/tsconfig)) = 1.2.0rc1
 Provides: bundled(npm(@grafana/ui)) = 0.0.0-use.local
@@ -381,7 +380,6 @@ Provides: bundled(npm(@types/eslint)) = 7.28.2
 Provides: bundled(npm(@types/file-saver)) = 2.0.5
 Provides: bundled(npm(@types/fs-extra)) = 8.1.2
 Provides: bundled(npm(@types/google.analytics)) = 0.0.42
-Provides: bundled(npm(@types/grafana__slate-react)) = 0.22.5
 Provides: bundled(npm(@types/history)) = 4.7.9
 Provides: bundled(npm(@types/hoist-non-react-statics)) = 3.3.1
 Provides: bundled(npm(@types/inquirer)) = 8.2.1
@@ -427,8 +425,9 @@ Provides: bundled(npm(@types/reselect)) = 2.2.0
 Provides: bundled(npm(@types/rimraf)) = 3.0.2
 Provides: bundled(npm(@types/semver)) = 7.3.9
 Provides: bundled(npm(@types/sinon)) = 10.0.11
-Provides: bundled(npm(@types/slate)) = 0.47.2
+Provides: bundled(npm(@types/slate)) = 0.47.9
 Provides: bundled(npm(@types/slate-plain-serializer)) = 0.7.2
+Provides: bundled(npm(@types/slate-react)) = 0.22.9
 Provides: bundled(npm(@types/systemjs)) = 0.20.8
 Provides: bundled(npm(@types/testing-library__jest-dom)) = 5.14.1
 Provides: bundled(npm(@types/testing-library__react-hooks)) = 3.4.1
@@ -642,8 +641,9 @@ Provides: bundled(npm(selecto)) = 1.16.2
 Provides: bundled(npm(semver)) = 5.7.1
 Provides: bundled(npm(simple-git)) = 3.7.1
 Provides: bundled(npm(sinon)) = 14.0.0
-Provides: bundled(npm(slate)) = 0.47.8
-Provides: bundled(npm(slate-plain-serializer)) = 0.7.10
+Provides: bundled(npm(slate)) = 0.47.9
+Provides: bundled(npm(slate-plain-serializer)) = 0.7.11
+Provides: bundled(npm(slate-react)) = 0.22.10
 Provides: bundled(npm(storybook-dark-mode)) = 1.1.0
 Provides: bundled(npm(style-loader)) = 1.3.0
 Provides: bundled(npm(stylelint)) = 14.8.2
@@ -703,9 +703,9 @@ rm -r plugins-bundled
 %if 0%{?fedora} || 0%{?rhel} > 8
 %patch6 -p1
 %endif
+%patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10 -p1
 
 %patch1001 -p1
 %if %{enable_fips_mode}
@@ -889,6 +889,10 @@ OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryptio
 
 
 %changelog
+* Wed Sep 21 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 9.0.9-1
+- update to 9.0.9 tagged upstream community sources, see CHANGELOG
+- resolve CVE-2022-35957 grafana: Escalation from admin to server admin when auth proxy is used (rhbz#2128565)
+
 * Thu Sep 15 2022 Andreas Gerstmayr <agerstmayr@redhat.com> 9.0.8-1
 - update to 9.0.8 tagged upstream community sources, see CHANGELOG
 - do not list /usr/share/grafana/conf twice

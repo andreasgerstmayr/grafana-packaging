@@ -1,4 +1,4 @@
-From af9688a2f1d15fa4b4840a0224ec159a97bcc411 Mon Sep 17 00:00:00 2001
+From 2af478556ea021b939381cdf69582cd045dd6c85 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 17:01:09 +0200
 Subject: [PATCH] add manpages
@@ -6,11 +6,11 @@ Subject: [PATCH] add manpages
 
 diff --git a/docs/man/man1/grafana-cli.1 b/docs/man/man1/grafana-cli.1
 new file mode 100644
-index 0000000000..081d35bfae
+index 0000000000..2dc5073206
 --- /dev/null
 +++ b/docs/man/man1/grafana-cli.1
 @@ -0,0 +1,63 @@
-+.TH GRAFANA "1" "September 2022" "Grafana cli version 9.0.8" "User Commands"
++.TH GRAFANA "1" "September 2022" "Grafana cli version 9.0.9" "User Commands"
 +.SH NAME
 +grafana-cli \- command line administration for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -75,11 +75,11 @@ index 0000000000..081d35bfae
 +.BR http://docs.grafana.org/ .
 diff --git a/docs/man/man1/grafana-server.1 b/docs/man/man1/grafana-server.1
 new file mode 100644
-index 0000000000..a10acbb253
+index 0000000000..7f33239ea4
 --- /dev/null
 +++ b/docs/man/man1/grafana-server.1
 @@ -0,0 +1,80 @@
-+.TH VERSION "1" "September 2022" "Version 9.0.8" "User Commands"
++.TH VERSION "1" "September 2022" "Version 9.0.9" "User Commands"
 +.SH NAME
 +grafana-server \- back-end server for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION

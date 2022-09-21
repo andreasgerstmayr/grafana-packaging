@@ -1,4 +1,4 @@
-From 64155b6b75589f127b304c1bc04a21baaaf92961 Mon Sep 17 00:00:00 2001
+From 9fa3bbb227b19b13b02fa7e24cb4331e4918cc06 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 17:18:56 +0200
 Subject: [PATCH] remove unused backend dependencies

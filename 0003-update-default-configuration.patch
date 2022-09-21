@@ -1,11 +1,11 @@
-From 4e98684081dff58ff4159e7c4af46227c85b77c6 Mon Sep 17 00:00:00 2001
+From 1a5bc46ab64b80717ff9f17d194171db76a0507d Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 17:05:48 +0200
 Subject: [PATCH] update default configuration
 
 
 diff --git a/conf/defaults.ini b/conf/defaults.ini
-index b2034acc9a..7137cd5707 100644
+index dbb7143be4..4a3cf0a21d 100644
 --- a/conf/defaults.ini
 +++ b/conf/defaults.ini
 @@ -190,7 +190,7 @@ row_limit = 1000000
@@ -27,7 +27,7 @@ index b2034acc9a..7137cd5707 100644
  # Set to false to disable all checks to https://grafana.com
  # for new versions of plugins. The check is used
 diff --git a/conf/sample.ini b/conf/sample.ini
-index b5c2e2eae2..24e77d5233 100644
+index d44532f346..1ede932e1e 100644
 --- a/conf/sample.ini
 +++ b/conf/sample.ini
 @@ -196,7 +196,7 @@
@@ -57,7 +57,7 @@ index b5c2e2eae2..24e77d5233 100644
  
  # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
  ;default_home_dashboard_path =
-@@ -1026,7 +1026,7 @@
+@@ -1028,7 +1028,7 @@
  ;enable_alpha = false
  ;app_tls_skip_verify_insecure = false
  # Enter a comma-separated list of plugin identifiers to identify plugins to load even if they are unsigned. Plugins with modified signatures are never loaded.
